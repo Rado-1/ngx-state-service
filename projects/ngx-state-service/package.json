@@ -1,0 +1,15 @@
+{
+  "name": "ngx-state-service",
+  "version": "0.9.0",
+  "author": {
+    "name": "Radovan Cervenka"
+  },
+  "peerDependencies": {
+    "@angular/common": "^17.0.0",
+    "@angular/core": "^17.0.0"
+  },
+  "dependencies": {
+    "tslib": "^2.3.0"
+  },
+  "sideEffects": false
+}
