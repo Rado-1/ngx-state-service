@@ -4,11 +4,11 @@ import { RecursivePartial, mut, mutDeep } from './utils';
 
 @Injectable()
 export class StateService<T extends Record<string, any>> {
-  private stateValueSubject: BehaviorSubject<T | undefined>;
-  value$: Observable<T | undefined>;
+  private stateValueSubject: BehaviorSubject<T>;
+  value$: Observable<T>;
 
   constructor() {
-    this.stateValueSubject = new BehaviorSubject<T | undefined>(undefined);
+    this.stateValueSubject = new BehaviorSubject<T>(undefined as any);
     this.value$ = this.stateValueSubject.asObservable();
   }
 

@@ -1,32 +1,32 @@
-import { Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StateService } from '../../../ngx-state-service/src/public-api';
-
-interface LocalState {
-  a?: string;
-  b: { c: number , d: string};
-  counter: number;
-}
+import { CounterComponent } from './counter/counter.component';
+import { TodoListComponent } from './todo-list/todo-list.component';
+import { GlobalStateService } from './services/global-state.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, CounterComponent, TodoListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
-  providers: [StateService],
 })
 export class AppComponent {
-  constructor(public state: StateService<LocalState>) {
-    this.updateCounter();
+  @ViewChild('opacitySelect') opacitySelect!: ElementRef<HTMLInputElement>;
 
-    this.state.set({ a:'aaa', b:{d:'d'} });
+  constructor(public state: GlobalStateService) {
+    state.set({ opacity: '25' });
   }
 
-  updateCounter() {
-    setTimeout(() => {
-      this.state.set({ counter: (this.state.value?.counter ?? -1) + 1 });
-      this.updateCounter();
-    }, 1000);
+  setOpacity() {
+    this.state.set({
+      opacity: this.opacitySelect.nativeElement.value,
+    });
   }
 }

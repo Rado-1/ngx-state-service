@@ -1,0 +1,47 @@
+@if (state$ | async; as state) {
+
+<div
+  class="card m-4 bg-danger shadow"
+  [ngClass]="'bg-opacity-' + state.opacity"
+>
+  <h5 class="card-header">Counter</h5>
+  <div class="card-body">
+    <div class="hstack gap-3 align-items-end">
+      <label for="counterMaxInput" class="form-label">Counter max:</label>
+      <input
+        #counterMaxInput
+        id="counterMaxInput"
+        type="number"
+        [min]="1"
+        [value]="state.counterMax ?? null"
+        (input)="changeCounterMax()"
+        class="form-control"
+        style="width: 100px"
+      />
+      <button class="btn btn-primary" (click)="infinityCounterMax()">
+        <i class="bi bi-infinity"></i>
+      </button>
+      <button class="btn btn-primary" (click)="resetCounter()">
+        Reset counter
+      </button>
+      <button class="btn btn-primary" (click)="startStopCounter()">
+        {{ state.countingStopped ? "Start" : "Stop" }}
+      </button>
+    </div>
+
+    <div class="display-4 text-center mt-4 mb-3">
+      {{ state.countingStopped ? "STOPPED" : state.counter }}
+    </div>
+    @if(!!state.counterMax){
+    <div class="progress" role="progressbar">
+      <div
+        class="progress-bar"
+        [ngStyle]="{ width: state.counterPercent + '%' }"
+      >
+        {{ state.counterPercent | number : ".0-0" }}%
+      </div>
+    </div>
+    }
+  </div>
+</div>
+}

@@ -1,3 +1,26 @@
-@if (state.value$ | async; as state){
-{{ state.counter }}
-}
+<div class="container-md">
+  @if (state.value$ | async; as gState) {
+
+  <div class="hstack gap-3 align-items-end m-4">
+    <label for="opacitySelect" class="form-label">Panel opacity:</label>
+    <select
+      #opacitySelect
+      id="opacitySelect"
+      class="form-select"
+      [value]="gState.opacity"
+      style="width: 100px"
+      (input)="setOpacity()"
+    >
+      <option value="100">100%</option>
+      <option value="75">75%</option>
+      <option value="50">50%</option>
+      <option value="25">25%</option>
+      <option value="10">10%</option>
+    </select>
+  </div>
+
+  }
+
+  <app-counter></app-counter>
+  <app-todo-list></app-todo-list>
+</div>

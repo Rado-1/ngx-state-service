@@ -4,10 +4,10 @@ Yet another lightweight state management library for Angular.
 
 ## About
 
-This library provides much simpler approach than other robust state management
-libraries, like `ngrx` or`ngxs` based on or inspired by Redux, and is intended
-for developers who need simple, type safe, effective, and practically usable
-solution with minimal boilerplate.
+**ngx-state-service** provides much simpler approach than other robust state
+management libraries, like `ngrx` or`ngxs` based on or inspired by Redux, and is
+intended for developers who need straightforward, type safe, effective, and
+practically usable solution with minimal boilerplate.
 
 Even if the primary intention for its creation was to solve the problem of local
 component state for OnPush change detection strategy, it is usable also for
@@ -35,7 +35,7 @@ detection strategy.
 
 ## Compatibility with Angular versions
 
-Angular `17.0.0` or higher is required. However, the source code can be compiled
+Angular `14.0.0` or higher is required. However, the source code can be compiled
 on older version of Angular, starting from Angular 5.
 
 ## Installation
