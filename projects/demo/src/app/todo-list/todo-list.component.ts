@@ -114,9 +114,11 @@ export class TodoListComponent {
     // this.state.value.todoList.todos.splice(todoIndex);
     // this.state.set({});
 
-    const tds = this.localState.value.todos;
-    const newTodos = [...tds.slice(0, todoIndex), ...tds.slice(todoIndex + 1)];
-
-    this.localState.setDeep({ todos: newTodos });
+    this.localState.setDeepFnc((state) => ({
+      todos: [
+        ...state.todos.slice(0, todoIndex),
+        ...state.todos.slice(todoIndex + 1),
+      ],
+    }));
   }
 }

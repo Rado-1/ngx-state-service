@@ -36,7 +36,7 @@
         </tr>
       </thead>
       <tbody>
-        @for(todo of state.todos; track todo){
+        @for (todo of state.todos; track todo) {
         <tr [ngClass]="todo.done ? 'text-decoration-line-through' : null">
           <td>
             {{ todo.text }}

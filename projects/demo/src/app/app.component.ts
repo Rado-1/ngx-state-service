@@ -20,12 +20,12 @@ import { GlobalStateService } from './services/global-state.service';
 export class AppComponent {
   @ViewChild('opacitySelect') opacitySelect!: ElementRef<HTMLInputElement>;
 
-  constructor(public state: GlobalStateService) {
-    state.set({ opacity: '25' });
+  constructor(public globalState: GlobalStateService) {
+    globalState.set({ opacity: '25' });
   }
 
   setOpacity() {
-    this.state.set({
+    this.globalState.set({
       opacity: this.opacitySelect.nativeElement.value,
     });
   }

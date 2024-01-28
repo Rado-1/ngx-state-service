@@ -76,7 +76,7 @@ export class CounterComponent {
   updateCounter() {
     this.timeoutId = window.setTimeout(() => {
       const max = this.localState.value.counterMax;
-      const oldValue = this.localState.value?.counter;
+      const oldValue = this.localState.value.counter;
       const newValue = (max ? oldValue < max : true) ? oldValue + 1 : 0;
 
       this.localState.set({
@@ -105,10 +105,10 @@ export class CounterComponent {
   }
 
   startStopCounter() {
-    this.localState.set({
+    this.localState.setFnc((state) => ({
       counter: 0,
-      countingStopped: !this.localState.value.countingStopped,
-    });
+      countingStopped: !state.countingStopped,
+    }));
 
     if (this.localState.value.countingStopped) {
       clearTimeout(this.timeoutId);

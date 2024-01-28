@@ -2,6 +2,8 @@
 
 Yet another lightweight state management library for Angular.
 
+Version: 0.9.0
+
 ## About
 
 **ngx-state-service** provides much simpler approach than other robust state
@@ -21,11 +23,11 @@ which can be injected to a component to manage its local state or to a
 state, provides methods for changing the state and distributes the changes.
 
 A `state` (component local or application global) is defined by an
-interface, and therefore takes all advantages of TypeScript type system.
-StateService allows to modify arbitrary part of the state (properties) at once.
-In addition, the state can represent a nested structures which can be modified
-at arbitrary level of nesting. This provides possibility to logically structure
-state by user's needs.
+interface, and therefore takes all advantages of TypeScript type system, e.g.,
+type checking or content assistant in an IDE. StateService allows to modify
+arbitrary part of the state (properties) at once. In addition, the state can
+represent a nested structures which can be modified at arbitrary level of
+nesting. This provides possibility to logically structure state by user's needs.
 
 Internally, a state is represented by immutable object of which changes are
 propagated to other parts of application as rsjx Observables. Another
@@ -35,8 +37,7 @@ detection strategy.
 
 ## Compatibility with Angular versions
 
-Angular `14.0.0` or higher is required. However, the source code can be compiled
-on older version of Angular, starting from Angular 5.
+Angular `5.0.0` or higher is required.
 
 ## Installation
 
@@ -46,54 +47,224 @@ npm i ngx-state-service
 
 ## Initial setup
 
+### Initializing state in standalone components
+
 In standalone component, you just define the local state interface and inject
 the service. The service is parametrized with the state interface.
 
 ```ts
-import { Component } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { StateService } from "ngx-state-service";
-
+import { StateService } from 'ngx-state-service';
+...
 interface LocalState {
   counter: number;
+  counterMax?: number;
+  counterPercent: number; // derived property
+  countingStopped: boolean;
 }
-
+...
 @Component({
-  selector: "app-component",
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: "./app.component.html",
-  styleUrl: "./app.component.scss",
+  ...
   providers: [StateService],
 })
-export class AppComponent {
-  constructor(public state: StateService<LocalState>) {}
+export class CounterComponent {
+...
+  constructor(public localState: StateService<LocalState>) {
+
+      // initial state
+      this.localState.set({
+        counter: 0,
+        counterMax: 10,
+        countingStopped: false,
+      });
+      ...
+  }
+  ...
 }
 ```
 
-In not-standalone component, omit `standalone`, `imports`, and `providers`
-properties from the component config.
+Alternatively, you can omit locally defined provider for `StateService` and put
+it to the global application configuration in `app.config.ts`.
 
----
+```ts
+export const appConfig: ApplicationConfig = {
+  providers: [
+  ...
+  { provide: StateService, useClass: StateService }
+  ...
+  ],
+};
+```
 
-## Code scaffolding
+### Initializing state in not standalone components
 
-Run `ng generate component component-name --project ngx-state-service` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project ngx-state-service`.
+In not standalone component, omit `StateService` from `providers` property of the component config.
 
-> Note: Don't forget to add `--project ngx-state-service` or else it will be added to the default project in your `angular.json` file.
+## Usage
 
-## Build
+### Updating state
 
-Run `ng build ngx-state-service` to build the project. The build artifacts will be stored in the `dist/` directory.
+Arbitrary subset of state top-level properties can be set by the `set` method.
 
-## Publishing
+```ts
+this.localState.set({ counterMax: 10 });
+```
 
-After building your library with `ng build ngx-state-service`, go to the dist folder `cd dist/ngx-state-service` and run `npm publish`.
+In the case of nested state (where properties of a state are objects themselves),
+updating of inner properties require setting of `isDeep` parameter to true or
+use of `setDeep` method instead.
 
-## Running unit tests
+```ts
+interface LocalState {
+  a: number;
+  b?: string[];
+  c: { d: boolean; e: string };
+}
 
-Run `ng test ngx-state-service` to execute the unit tests via [Karma](https://karma-runner.github.io).
+// initial state
+this.localState.set({ a: 1, c: { d: false, e: "x" } });
 
-## Further help
+// isDeep parameter set to true
+this.localState.set({ c: { e: "y" } }, true);
+// or
+this.localState.setDeep({ c: { e: "y" } });
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+console.log(this.localState.value);
+// prints: {a:1, b: undefined, c: {d: false, e: 'y'}}
+```
+
+### Getting the current state
+
+The current state is available in te `value` property of `StateService`.
+
+```ts
+this.localState.value.counterMax;
+```
+
+### Observing the current state
+
+Component can subscribe for changes of state through the `value$` Observervable. This
+is typically done in component template
+with `OnPush` change strategy.
+
+```ts
+@if (localState.value$ | async; as state) {
+  ...
+  <div>
+    {{ state.countingStopped ? "STOPPED" : state.counter }}
+  </div>
+  @if (!!state.counterMax) {
+  <div class="progress" role="progressbar">
+    <div
+      class="progress-bar"
+      [ngStyle]="{ width: state.counterPercent + '%' }"
+    >
+      {{ state.counterPercent | number : ".0-0" }}%
+    </div>
+  </div>
+  }
+  ...
+}
+```
+
+Less usual example of subscribing for status changes is computation of derived properties, like this:
+
+```ts
+constructor() {
+  ...
+  // update counterPercent automatically
+  // by changes of counter or counterMax
+  this.localState.value$
+    .pipe(
+      takeUntilDestroyed(),
+      distinctUntilChanged(
+        (prev, curr) =>
+          prev.counter === curr.counter &&
+          prev.counterMax === curr.counterMax
+      )
+    )
+    .subscribe((st) => {
+      this.localState.value.counterPercent = st.counterMax
+        ? (100 * st.counter) / st.counterMax
+        : 0;
+    });
+  ...
+}
+```
+
+## Global application state
+
+### Defining global state service
+
+The library itself does not provide global state, but it can be defined as
+singleton service in the following way:
+
+```ts
+import { Injectable } from "@angular/core";
+import { StateService } from "ngx-state-service";
+
+export interface GlobalState {
+  username: string;
+  roles: Role[];
+}
+
+@Injectable({
+  providedIn: "root",
+})
+export class GlobalStateService extends StateService<GlobalState> {}
+```
+
+### Usage global state service
+
+Global state service is then used analogously to `StateService`.
+
+```ts
+constructor(
+    private localState: StateService<LocalState>,
+    private globalState: GlobalStateService
+  ) {...}
+```
+
+### Combining global state with local component state
+
+If both states are used in templates it is a good idea to combine them together
+to avoid cascading @if statements.
+
+```ts
+interface UnifiedState extends LocalState, GlobalState {}
+
+...
+export class AnyComponent {
+  state$: Observable<UnifiedState>;
+
+  constructor(
+      private localState: StateService<LocalState>,
+      private globalState: GlobalStateService
+    ) {
+    ...
+    // define unified state
+    this.state$ = combineLatest([localState.value$, globalState.value$]).pipe(
+      takeUntilDestroyed(),
+      map(([localState, globalState]) => {
+        return { ...localState, ...globalState };
+      })
+    );
+    ...
+  }
+}
+```
+
+Then just use the `state$` Observable to subscribe for changes of either local or
+global state containing all the unified state properties.
+
+```ts
+@if (state$ | async; as state) {
+  <!-- from global state -->
+  {{state.user}}
+  <!-- from local state -->
+  {{state.counter}}
+}
+```
+
+## Demo project
+
+[Here](projects/demo) you can find a demo project.

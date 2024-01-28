@@ -1,5 +1,5 @@
 <div class="container-md">
-  @if (state.value$ | async; as gState) {
+  @if (globalState.value$ | async; as state) {
 
   <div class="hstack gap-3 align-items-end m-4">
     <label for="opacitySelect" class="form-label">Panel opacity:</label>
@@ -7,7 +7,7 @@
       #opacitySelect
       id="opacitySelect"
       class="form-select"
-      [value]="gState.opacity"
+      [value]="state.opacity"
       style="width: 100px"
       (input)="setOpacity()"
     >

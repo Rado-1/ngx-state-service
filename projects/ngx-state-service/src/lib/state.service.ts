@@ -24,7 +24,18 @@ export class StateService<T extends Record<string, any>> {
     this.stateValueSubject.next(val as T);
   }
 
+  setFnc<U extends RecursivePartial<T>>(
+    statusUpdateFnc: (status: T) => U,
+    isDeep = false
+  ) {
+    this.set(statusUpdateFnc(this.value), isDeep);
+  }
+
   setDeep<U extends RecursivePartial<T>>(statusUpdate: U) {
     this.set(statusUpdate, true);
+  }
+
+  setDeepFnc<U extends RecursivePartial<T>>(statusUpdateFnc: (status: T) => U) {
+    this.set(statusUpdateFnc(this.value), true);
   }
 }
