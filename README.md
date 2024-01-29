@@ -276,6 +276,31 @@ global state containing all the unified state properties.
 }
 ```
 
+## Utilities
+
+The library contains also the following utilities:
+
+- Definition of `RecursivePartial` generics type discussed [here](https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript),
+- function `mut` used to create a copy of an object with changed properties, and
+- function `mutDeep` used to create a copy of an object with recursively changed
+  nested properties.
+
+`mut` and `mutDeep` functions are usually used for immutable changes of objects, for
+example:
+
+```ts
+const obj = { a: 1, b: { c: 1, d: 1 } };
+
+console.log(mut(obj, { a: 2 }));
+// prints:  { a: 2, b: { c: 1, d: 1 } }
+
+console.log(mut(obj, { b: { c: 2 } }));
+// prints:  { a: 2, b: { c: 2 } }
+
+console.log(mutDeep(obj, { b: { c: 2 } }));
+// prints:  { a: 2, b: { c: 2, d: 1 } }
+```
+
 ## Building and publishing the library
 
 ```console
