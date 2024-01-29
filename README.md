@@ -2,7 +2,7 @@
 
 Lightweight state management library for Angular.
 
-Version: 0.1.0
+Version: 0.1.2
 
 ## Compatibility with Angular versions
 
