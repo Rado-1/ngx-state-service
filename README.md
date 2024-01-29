@@ -6,13 +6,15 @@ Version: 0.1.0
 
 ## Compatibility with Angular versions
 
-Angular `12.0.0` or higher is required.
+Angular `17.0.0` or higher is required.
 
 ## About
 
 **ngx-state-service** provides much simpler approach than other robust state
-management libraries, like [ngrx](https://ngrx.io/) or [ngxs](https://www.ngxs.io/), and is intended for developers who
-need straightforward, type safe, effective, and practically usable solution with minimal boilerplate.
+management libraries, like [ngrx](https://ngrx.io/) or
+[ngxs](https://www.ngxs.io/), and is intended for developers who need
+straightforward, type safe, effective, and practically usable solution with
+minimal boilerplate.
 
 Even if the primary motivation was to solve the problem of local
 component state for OnPush change detection strategy seamlessly propagated to
@@ -31,7 +33,8 @@ A `state` is defined by an interface, and therefore takes all advantages of
 TypeScript type system, e.g., type checking or content assistance in an IDE.
 `StateService` allows to modify arbitrary part of the state (set of properties)
 at once. In addition, the state can represent a nested structures which can be
-modified at arbitrary level of nesting. This provides possibility to logically structure the state.
+modified at arbitrary level of nesting. This provides possibility to logically
+structure the state.
 
 Internally, a state is represented by immutable object of which changes are
 propagated to other parts of application as rsjx Observable. Another

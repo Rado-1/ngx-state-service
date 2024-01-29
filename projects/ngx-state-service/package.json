@@ -1,12 +1,27 @@
 {
   "name": "ngx-state-service",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "description": "Lightweight state management library for Angular.",
   "author": {
     "name": "Radovan Cervenka"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rado-1/ngx-state-service.git"
+  },
+  "homepage": "https://github.com/Rado-1/ngx-state-service",
+  "bugs": {
+    "url": "https://github.com/Rado-1/ngx-state-service/issues"
+  },
+  "keywords": [
+    "angular",
+    "state",
+    "state-management"
+  ],
+  "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "^12.0.0",
-    "@angular/core": "^12.0.0"
+    "@angular/common": "^17.0.0",
+    "@angular/core": "^17.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
