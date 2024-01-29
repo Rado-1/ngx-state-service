@@ -1,13 +1,17 @@
 # ngx-state-service
 
-Yet another lightweight state management library for Angular.
+Lightweight state management library for Angular.
 
-Version: 0.9.0
+Version: 0.1.0
+
+## Compatibility with Angular versions
+
+Angular `12.0.0` or higher is required.
 
 ## About
 
 **ngx-state-service** provides much simpler approach than other robust state
-management libraries, like `ngrx` or`ngxs`, and is intended for developers who
+management libraries, like [ngrx](https://ngrx.io/) or [ngxs](https://www.ngxs.io/), and is intended for developers who
 need straightforward, type safe, effective, and practically usable solution with minimal boilerplate.
 
 Even if the primary motivation was to solve the problem of local
@@ -34,10 +38,6 @@ propagated to other parts of application as rsjx Observable. Another
 possibility is to read the current status of state by getter. This allows
 effective usage of a state in component TypeScript code and templates, including
 OnPush change detection strategy.
-
-## Compatibility with Angular versions
-
-Angular `12.0.0` or higher is required.
 
 ## Installation
 
@@ -129,11 +129,16 @@ this.localState.set({ c: { e: "y" } }, true);
 this.localState.setDeep({ c: { e: "y" } });
 
 console.log(this.localState.value);
-// prints: {a:1, b: undefined, c: {d: false, e: 'y'}}
+// prints: { a:1, c: { d: false, e: 'y' }}
 ```
 
-WORKING HERE
-TODO describe also setFnc and setDeepFnc variants
+If updating a state uses its current value it is convenient to use `setFnc` or `setDeepFnc` variants.
+
+```ts
+this.localState.setFnc((state) => ({ a: state.a + 1 } }));
+
+this.localState.setDeepFnc((state) => ({ c: { d: !state.c.d } }));
+```
 
 ### Getting the current state
 
@@ -268,9 +273,13 @@ global state containing all the unified state properties.
 }
 ```
 
-## Building the library
+## Building and publishing the library
 
-TODO WORKING HERE
+```console
+ng build ngx-state-service
+cd dist/ngx-state-service
+npm publish
+```
 
 ## Demo project
 

@@ -2,7 +2,7 @@
 
 This project demonstrates usage of the `ngx-state-service` for component-local and application-global state management.
 
-It uses standalone components in Angular 17 and Bootstrap 5.3.2 frontend toolkit.
+It uses standalone components with Angular 17.0.0 and Bootstrap 5.3.2 frontend toolkit.
 
 ## Development server
 
