@@ -1,5 +1,9 @@
 import { mut, mutDeep } from './utils';
 
+interface TestInterface {
+  a: string;
+}
+
 describe('utils', () => {
   it('mut can change undefined', () => {
     expect(mut(undefined as any, { a: 2 })).toEqual({ a: 2 });
@@ -24,7 +28,7 @@ describe('utils', () => {
 
   it('mut can change values of composite types', () => {
     expect(mut({ a: { b: 1, c: 1 }, d: 1 }, { a: { b: 2 } })).toEqual({
-      a: { b: 2 },
+      a: { b: 2 } as any /* because of incompatible with original object */,
       d: 1,
     });
 
@@ -36,6 +40,13 @@ describe('utils', () => {
       a: undefined,
       b: 1,
     });
+  });
+
+  it('mut returns correct types for assignments', () => {
+    let variable: TestInterface = { a: 'a' };
+
+    variable = mut(variable, { a: 'x' });
+    expect(variable).toEqual({ a: 'x' });
   });
 
   it('mutDeep can change multiple recursive values', () => {

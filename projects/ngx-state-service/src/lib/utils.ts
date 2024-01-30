@@ -11,7 +11,7 @@ export type RecursivePartial<T> = {
 export function mut<
   T extends RecursivePartial<U>,
   U extends Record<string, any>
->(obj: T, props: U): RecursivePartial<T> {
+>(obj: T, props: U): T {
   return { ...obj, ...props };
 }
 
@@ -20,7 +20,7 @@ arrays are copied, objects are recursed. */
 export function mutDeep<
   T extends RecursivePartial<U>,
   U extends Record<string, any>
->(obj: T, props: U): RecursivePartial<T> {
+>(obj: T, props: U): T {
   let res = obj;
 
   for (const [key, value] of Object.entries(props)) {
@@ -31,5 +31,5 @@ export function mutDeep<
     }
   }
 
-  return res as RecursivePartial<T>;
+  return res;
 }
