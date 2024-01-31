@@ -4,10 +4,7 @@ Lightweight state management library for Angular.
 
 ## Compatibility with Angular versions
 
-Angular 17.0.0 or higher is required.
-
-Works also with older versions of Angular, if installed with the `--force` flag.
-Tested on Angular 14.2.0.
+Angular `14.0.0` or higher is required.
 
 ## About
 
@@ -49,12 +46,6 @@ OnPush change detection strategy.
 npm i ngx-state-service
 ```
 
-For older version of Angular use the `--force` flag.
-
-```console
-npm i --force ngx-state-service
-```
-
 ## Initial setup
 
 ### Initializing state
@@ -93,8 +84,8 @@ export class CounterComponent {
 ```
 
 Alternatively, you can omit locally defined provider for `StateService` and put
-it to the global application configuration in `app.config.ts` or to
-`app.module.ts` for older versions of Angular.
+it to the global application configuration in `app.config.ts` for standalone
+applications or in `app.module.ts` for module-based applications.
 
 ```ts
 export const appConfig: ApplicationConfig = {
@@ -172,7 +163,7 @@ with `OnPush` change strategy.
 ```
 
 You can use `*gnIf` directive instead of `@if` for older versions of Angular
-(older versions of templates).
+(older versions of template syntax).
 
 ```html
 <ng-container *ngIf="localState.value$ | async as state"> ... </ng-container>

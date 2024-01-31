@@ -3,16 +3,12 @@
 Lightweight state management library for Angular.
 
 :warning: **This version is still work in progress used to get feedback from
-community. It is not recommended to use it in "real" projects since API can
-change if requested by users.<br>(I hope this message will disappear soon,
-expecting March 2024.)**
+community. It is not recommended to use it in "real" projects yet, since API can
+change if requested by users. I expect to stabilize the API until March 2024.**
 
 ## Compatibility with Angular versions
 
-Angular `17.0.0` or higher is required.
-
-Works also with older versions of Angular, if installed with the `--force` flag.
-Tested on Angular 14.2.0.
+Angular `14.0.0` or higher is required.
 
 ## About
 
