@@ -4,7 +4,10 @@ Lightweight state management library for Angular.
 
 ## Compatibility with Angular versions
 
-Angular `17.0.0` or higher is required.
+Angular 17.0.0 or higher is required.
+
+Works also with older versions of Angular, if installed with the `--force` flag.
+Tested on Angular 14.2.0.
 
 ## About
 
@@ -42,16 +45,21 @@ OnPush change detection strategy.
 
 ## Installation
 
-```
+```console
 npm i ngx-state-service
+```
+
+For older version of Angular use the `--force` flag.
+
+```console
+npm i --force ngx-state-service
 ```
 
 ## Initial setup
 
-### Initializing state in standalone components
+### Initializing state
 
-In standalone component, you just define the local state interface and inject
-the service. The service is parametrized with the state interface.
+Just define the local state interface and inject the service. The service is parametrized with the state interface.
 
 ```ts
 import { StateService } from 'ngx-state-service';
@@ -66,6 +74,7 @@ interface LocalState {
 @Component({
   ...
   providers: [StateService],
+  ...
 })
 export class CounterComponent {
 ...
@@ -84,7 +93,8 @@ export class CounterComponent {
 ```
 
 Alternatively, you can omit locally defined provider for `StateService` and put
-it to the global application configuration in `app.config.ts`.
+it to the global application configuration in `app.config.ts` or to
+`app.module.ts` for older versions of Angular.
 
 ```ts
 export const appConfig: ApplicationConfig = {
@@ -95,10 +105,6 @@ export const appConfig: ApplicationConfig = {
   ],
 };
 ```
-
-### Initializing state in non-standalone components
-
-In non-standalone component omit `StateService` from `providers` property of the component config.
 
 ## Usage
 
@@ -155,24 +161,21 @@ Component can subscribe for changes of state through the `value$` Observervable.
 is typically done in component template
 with `OnPush` change strategy.
 
-```ts
-@if (localState.value$ | async; as state) {
-  ...
-  <div>
-    {{ state.countingStopped ? "STOPPED" : state.counter }}
-  </div>
-  @if (!!state.counterMax) {
-  <div class="progress" role="progressbar">
-    <div
-      class="progress-bar"
-      [ngStyle]="{ width: state.counterPercent + '%' }"
-    >
-      {{ state.counterPercent | number : ".0-0" }}%
-    </div>
-  </div>
-  }
-  ...
-}
+```html
+@if (localState.value$ | async; as state) { ...
+<div>{{ state.countingStopped ? "STOPPED" : state.counter }}</div>
+@if (!!state.counterMax) {
+<div class="progress" role="progressbar">
+  <div class="progress-bar" [ngStyle]="{ width: state.counterPercent + '%' }">{{ state.counterPercent | number : ".0-0" }}%</div>
+</div>
+} ... }
+```
+
+You can use `*gnIf` directive instead of `@if` for older versions of Angular
+(older versions of templates).
+
+```html
+<ng-container *ngIf="localState.value$ | async as state"> ... </ng-container>
 ```
 
 Less usual example of subscribing for status changes is computation of derived properties, like this:

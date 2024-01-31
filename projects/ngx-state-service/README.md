@@ -11,6 +11,9 @@ expecting March 2024.)**
 
 Angular `17.0.0` or higher is required.
 
+Works also with older versions of Angular, if installed with the `--force` flag.
+Tested on Angular 14.2.0.
+
 ## About
 
 **ngx-state-service** provides much simpler approach than other robust state
