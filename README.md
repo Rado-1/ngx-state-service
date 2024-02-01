@@ -34,10 +34,11 @@ at once. In addition, the state can be a nested structure of objects which can
 be modified at arbitrary level of nesting.
 
 Internally, a state is represented by an immutable object of which changes are
-propagated to other parts of the application as rsjx Observable. Another
-possibility is to read the current status of state by getter. This allows
-effective usage of a state in component TypeScript code and templates, including
-OnPush change detection strategy.
+propagated to other parts of the application as [RxJS
+Observable](https://rxjs.dev/guide/observable). Another possibility is to read
+the current value of a state by getter. This allows effective usage of a state
+in component TypeScript code and templates, including OnPush change detection
+strategy.
 
 ## Installation
 
@@ -46,8 +47,6 @@ npm i ngx-state-service
 ```
 
 ## Initial setup
-
-### Initializing state
 
 Just define the local state interface and inject the service. The service is parametrized with the state interface.
 
