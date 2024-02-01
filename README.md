@@ -89,7 +89,7 @@ applications or in `app.module.ts` for module-based applications.
 export const appConfig: ApplicationConfig = {
   providers: [
   ...
-  { provide: StateService, useClass: StateService }
+  StateService,
   ...
   ],
 };
