@@ -30,12 +30,11 @@ propagates its changes.
 A `state` is defined by an interface, and therefore takes all advantages of
 TypeScript type system, e.g., type checking or content assistance in an IDE.
 `StateService` allows to modify arbitrary part of the state (set of properties)
-at once. In addition, the state can represent a nested structures which can be
-modified at arbitrary level of nesting. This provides possibility to logically
-structure the state.
+at once. In addition, the state can be a nested structure of objects which can
+be modified at arbitrary level of nesting.
 
-Internally, a state is represented by immutable object of which changes are
-propagated to other parts of application as rsjx Observable. Another
+Internally, a state is represented by an immutable object of which changes are
+propagated to other parts of the application as rsjx Observable. Another
 possibility is to read the current status of state by getter. This allows
 effective usage of a state in component TypeScript code and templates, including
 OnPush change detection strategy.
@@ -146,11 +145,11 @@ The current state is available in te `value` property of `StateService`.
 this.localState.value.counterMax;
 ```
 
-### Observing the current state
+### Observing the changes of state
 
-Component can subscribe for changes of state through the `value$` Observervable. This
-is typically done in component template
-with `OnPush` change strategy.
+It is possible to subscribe for changes of a state through the `value$`
+Observervable. This is typically done in component template with `OnPush` change
+detection strategy.
 
 ```html
 @if (localState.value$ | async; as state) { ...
@@ -162,8 +161,8 @@ with `OnPush` change strategy.
 } ... }
 ```
 
-You can use `*gnIf` directive instead of `@if` for older versions of Angular
-(older versions of template syntax).
+You can also use the `*gnIf` directive instead of `@if` for older versions of
+Angular (older versions of template syntax).
 
 ```html
 <ng-container *ngIf="localState.value$ | async as state"> ... </ng-container>
@@ -256,8 +255,8 @@ export class AnyComponent {
 }
 ```
 
-Then just use the `state$` Observable to subscribe for changes of either local or
-global state containing all the unified state properties.
+Then just use the `state$` Observable to subscribe for changes of either local
+or global state containing all the unified state properties.
 
 ```ts
 @if (state$ | async; as state) {
@@ -277,20 +276,19 @@ The library contains also the following utilities:
 - function `mutDeep` used to create a copy of an object with recursively changed
   nested properties.
 
-`mut` and `mutDeep` functions are usually used for immutable changes of objects, for
-example:
+`mut` and `mutDeep` functions are usually used for immutable changes of objects applied, for example, to change inputs of `OnPush` components.
 
 ```ts
-const obj = { a: 1, b: { c: 1, d: 1 } };
+let obj = { a: 1, b: { c: 1, d: 1 } };
 
-console.log(mut(obj, { a: 2 }));
-// prints:  { a: 2, b: { c: 1, d: 1 } }
+obj = mut(obj, { a: 2 });
+// obj is { a: 2, b: { c: 1, d: 1 } }
 
-console.log(mut(obj, { b: { c: 2 } }));
-// prints:  { a: 2, b: { c: 2 } }
+obj = mut(obj, { b: { c: 2 } });
+// obj is { a: 2, b: { c: 2 } }
 
-console.log(mutDeep(obj, { b: { c: 2 } }));
-// prints:  { a: 2, b: { c: 2, d: 1 } }
+obj = mutDeep(obj, { b: { d: 2 } });
+// obj is { a: 2, b: { c: 2, d: 2 } }
 ```
 
 ## Building and publishing the library
