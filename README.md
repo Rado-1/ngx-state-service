@@ -303,4 +303,4 @@ npm publish
 
 ## Demo project
 
-[Here](projects/demo) you can find a demo project.
+[Here](projects/demo) you can find a demo project. See it running on [StackBlitz](https://stackblitz.com/~/github.com/Rado-1/ngx-state-service).
