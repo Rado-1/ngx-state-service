@@ -214,6 +214,13 @@ export interface GlobalState {
 export class GlobalStateService extends StateService<GlobalState> {}
 ```
 
+For convenient accessing of the state and its parts/slices or for querying the
+state from other parts of the application, the service can provide also
+domain-specific methods. In this case, `getUser`, `setUser`, `getRoles`,
+`hasRole`, `addRoles`, etc.
+
+One application can provide more than one global state services.
+
 ### Usage global state service
 
 Global state service is then used analogously to `StateService`.
