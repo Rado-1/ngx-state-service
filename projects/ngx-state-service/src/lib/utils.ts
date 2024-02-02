@@ -7,7 +7,12 @@ export type RecursivePartial<T> = {
     : T[P];
 };
 
-/** Immutable, non-recursive setting of object's properties. */
+/**
+ * Creates a copy of an object with changed properties.
+ * @param obj - Object to change.
+ * @param  props - Properties and their values to change.
+ * @returns Copy of the object with changed properties.
+ */
 export function mut<
   T extends RecursivePartial<U>,
   U extends Record<string, any>
@@ -15,8 +20,13 @@ export function mut<
   return { ...obj, ...props };
 }
 
-/** Immutable setting of object's properties recursively. Simple types and
-arrays are copied, objects are recursed. */
+/**
+ * Creates a copy of an object with changed properties recursively. Simple types
+ * and arrays are copied, objects are recursed.
+ * @param obj - Object to change.
+ * @param  props - Properties and their values to change.
+ * @returns Copy of the object with changed properties.
+ */
 export function mutDeep<
   T extends RecursivePartial<U>,
   U extends Record<string, any>

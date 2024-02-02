@@ -4,7 +4,7 @@ Lightweight state management library for Angular.
 
 :warning: **This version is still work in progress used to get feedback from
 community. It is not recommended to use it in "real" projects yet, since API can
-change if requested by users. I expect to stabilize the API until March 2024.**
+change if requested by users.<br>I expect to stabilize the API until March 2024.**
 
 ## Compatibility with Angular versions
 

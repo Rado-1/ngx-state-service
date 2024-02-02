@@ -128,12 +128,13 @@ console.log(this.localState.value);
 // prints: { a:1, c: { d: false, e: 'y' }}
 ```
 
-If updating a state uses its current value it is convenient to use `setFnc` or `setDeepFnc` variants.
+If updating a state uses its current value it is convenient to use the variants
+with functional parameters.
 
 ```ts
-this.localState.setFnc((state) => ({ a: state.a + 1 } }));
+this.localState.set((state) => ({ a: state.a + 1 }));
 
-this.localState.setDeepFnc((state) => ({ c: { d: !state.c.d } }));
+this.localState.setDeep((state) => ({ c: { d: !state.c.d } }));
 ```
 
 ### Getting the current state
@@ -191,6 +192,28 @@ constructor() {
   ...
 }
 ```
+
+### Observing sub-states and derived states
+
+It is possible to subscribe for changes of sub-state and also to modify the
+state to a completely different object type. This is achieved by the `select`
+method which can be used to slice complex states and/or to compute derived
+values.
+
+```ts
+// creates Observable<{square: number; percent: number;}>
+// filtering changes of localState
+counterDerivedState$ = this.localState.select((st) => ({
+  square: st.counter * st.counter,
+  fraction: st.counterMax ? st.counter / st.counterMax : 0,
+}));
+```
+
+Only different values are emitted. Comparing of previous and current values can
+be controlled by the optional `comparator` parameter. If unspecified, objects
+transformed to JSON strings are compared, if `'==='`, standard === comparison is
+applied (two objects with different identity are always different), or
+alternatively a comparison function can be provided.
 
 ## Global application state
 

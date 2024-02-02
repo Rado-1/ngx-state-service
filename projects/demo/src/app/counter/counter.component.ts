@@ -35,6 +35,10 @@ export class CounterComponent {
   @ViewChild('counterMaxInput') counterMaxInput!: ElementRef<HTMLInputElement>;
   timeoutId?: number;
   state$: Observable<UnifiedState>;
+  counterDerivedState$ = this.localState.select((st) => ({
+    square: st.counter * st.counter,
+    fraction: st.counterMax ? st.counter / st.counterMax : 0,
+  }));
 
   constructor(
     private localState: StateService<LocalState>,
@@ -105,7 +109,7 @@ export class CounterComponent {
   }
 
   startStopCounter() {
-    this.localState.setFnc((state) => ({
+    this.localState.set((state) => ({
       counter: 0,
       countingStopped: !state.countingStopped,
     }));

@@ -39,6 +39,11 @@
         {{ state.counterPercent | number : ".0-0" }}%
       </div>
     </div>
+    } @if (counterDerivedState$ | async; as derived) {
+    <div>
+      Fraction: {{ derived.fraction | number : ".2-2" }}, Square:
+      {{ derived.square | number : ".0-0" }}
+    </div>
     }
   </div>
 </div>

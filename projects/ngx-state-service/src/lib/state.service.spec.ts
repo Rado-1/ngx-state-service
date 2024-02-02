@@ -44,4 +44,14 @@ describe('StateService', () => {
       c: { d: 1, e: '1', f: [1, 2, 3] },
     });
   });
+
+  it('propagates selected sub-state and derived values', (done: DoneFn) => {
+    state.set({ a: 3 });
+    state
+      .select((st) => ({ square: st.a * st.a }))
+      .subscribe((value) => {
+        expect(value).toEqual({ square: 9 });
+        done();
+      });
+  });
 });
