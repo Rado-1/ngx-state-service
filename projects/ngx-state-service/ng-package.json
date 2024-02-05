@@ -4,5 +4,6 @@
   "lib": {
     "entryFile": "src/public-api.ts"
   },
-  "assets": ["CHANGELOG.md"]
+  "assets": ["CHANGELOG.md"],
+  "allowedNonPeerDependencies": ["lodash-es"]
 }
