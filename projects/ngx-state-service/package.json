@@ -1,6 +1,6 @@
 {
   "name": "ngx-state-service",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Lightweight state management library for Angular.",
   "author": {
     "name": "Radovan Cervenka"
