@@ -32,19 +32,15 @@
     </div>
     @if (!!state.counterMax) {
     <div class="progress" role="progressbar">
-      <div
-        class="progress-bar"
-        [ngStyle]="{ width: state.counterPercent + '%' }"
-      >
-        {{ state.counterPercent | number : ".0-0" }}%
+      <div class="progress-bar" [ngStyle]="{ width: state.percent + '%' }">
+        {{ state.percent | number : ".0-0" }}%
       </div>
     </div>
-    } @if (counterDerivedState$ | async; as derived) {
-    <div>
-      Fraction: {{ derived.fraction | number : ".2-2" }}, Square:
-      {{ derived.square | number : ".0-0" }}
-    </div>
     }
+    <div>
+      Fraction: {{ state.fraction | number : ".3-3" }}, Square:
+      {{ state.square | number : ".0-0" }}
+    </div>
   </div>
 </div>
 }

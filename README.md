@@ -56,8 +56,11 @@ import { StateService } from 'ngx-state-service';
 interface LocalState {
   counter: number;
   counterMax?: number;
-  counterPercent: number; // derived property
   countingStopped: boolean;
+  // derived properties
+  square: number;
+  fraction: number;
+  percent: number;
 }
 ...
 @Component({
@@ -168,52 +171,29 @@ Angular (older versions of template syntax).
 <ng-container *ngIf="localState.value$ | async as state"> ... </ng-container>
 ```
 
-Less usual example of subscribing for status changes is computation of derived properties, like this:
-
-```ts
-constructor() {
-  ...
-  // update counterPercent automatically
-  // by changes of counter or counterMax
-  this.localState.value$
-    .pipe(
-      takeUntilDestroyed(),
-      distinctUntilChanged(
-        (prev, curr) =>
-          prev.counter === curr.counter &&
-          prev.counterMax === curr.counterMax
-      )
-    )
-    .subscribe((st) => {
-      this.localState.value.counterPercent = st.counterMax
-        ? (100 * st.counter) / st.counterMax
-        : 0;
-    });
-  ...
-}
-```
-
 ### Observing sub-states and derived states
 
-It is possible to subscribe for changes of sub-state and also to modify the
+It is possible to subscribe for changes of a sub-state and also to modify the
 state to a completely different object type. This is achieved by the `select`
 method which can be used to slice complex states and/or to compute derived
 values.
 
 ```ts
-// creates Observable<{square: number; percent: number;}>
-// filtering changes of localState
-counterDerivedState$ = this.localState.select((st) => ({
-  square: st.counter * st.counter,
-  fraction: st.counterMax ? st.counter / st.counterMax : 0,
-}));
+// compute derived properties
+const localExtendedState$ = this.localState.select((st) => {
+  const fraction = st.counterMax ? st.counter / st.counterMax : 0;
+  return {
+    ...st,
+    square: st.counter * st.counter,
+    fraction,
+    percent: 100 * fraction,
+  };
+});
 ```
 
 Only different values are emitted. Comparing of previous and current values can
 be controlled by the optional `comparator` parameter. If unspecified, objects
-transformed to JSON strings are compared, if `'==='`, standard === comparison is
-applied (two objects with different identity are always different), or
-alternatively a comparison function can be provided.
+are compared by Lodash isEqual method.
 
 ## Global application state
 

@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { StateService } from '../../../../ngx-state-service/src/public-api';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
+import { Observable, combineLatest, map } from 'rxjs';
 import {
   GlobalState,
   GlobalStateService,
@@ -16,11 +16,14 @@ import {
 interface LocalState {
   counter: number;
   counterMax?: number;
-  counterPercent: number; // derived property
   countingStopped: boolean;
+  // derived properties
+  square: number;
+  fraction: number;
+  percent: number;
 }
 
-interface UnifiedState extends LocalState, GlobalState {}
+interface UnifiedState extends GlobalState, LocalState {}
 
 @Component({
   selector: 'app-counter',
@@ -35,20 +38,27 @@ export class CounterComponent {
   @ViewChild('counterMaxInput') counterMaxInput!: ElementRef<HTMLInputElement>;
   timeoutId?: number;
   state$: Observable<UnifiedState>;
-  counterDerivedState$ = this.localState.select((st) => ({
-    square: st.counter * st.counter,
-    fraction: st.counterMax ? st.counter / st.counterMax : 0,
-  }));
 
   constructor(
     private localState: StateService<LocalState>,
     private globalState: GlobalStateService
   ) {
+    // compute derived properties
+    const localFullState$ = this.localState.select((st) => {
+      const fraction = st.counterMax ? st.counter / st.counterMax : 0;
+      return {
+        ...st,
+        square: st.counter * st.counter,
+        fraction,
+        percent: 100 * fraction,
+      };
+    });
+
     // define unified state
-    this.state$ = combineLatest([localState.value$, globalState.value$]).pipe(
+    this.state$ = combineLatest([globalState.value$, localFullState$]).pipe(
       takeUntilDestroyed(),
-      map(([localState, globalState]) => {
-        return { ...localState, ...globalState };
+      map(([globalState, localFullState]) => {
+        return { ...globalState, ...localFullState };
       })
     );
 
@@ -58,21 +68,6 @@ export class CounterComponent {
       counterMax: 10,
       countingStopped: false,
     });
-
-    // update counterPercent automatically by changes of counter or counterMax
-    this.localState.value$
-      .pipe(
-        takeUntilDestroyed(),
-        distinctUntilChanged(
-          (prev, curr) =>
-            prev.counter === curr.counter && prev.counterMax === curr.counterMax
-        )
-      )
-      .subscribe((st) => {
-        this.localState.value.counterPercent = st.counterMax
-          ? (100 * st.counter) / st.counterMax
-          : 0;
-      });
 
     this.updateCounter();
   }

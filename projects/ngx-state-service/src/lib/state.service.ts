@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
 import { RecursivePartial, mut, mutDeep } from './utils';
+import isEqual from 'lodash-es/isEqual';
 
 /**
  * Non-singleton service that manages immutable state, provides its getters and
@@ -57,29 +58,20 @@ export class StateService<T extends Record<string, any>> {
     this.set(statusUpdate, true);
   }
 
-  private compareByJson<T>(obj1: T, obj2: T) {
-    return JSON.stringify(obj1) === JSON.stringify(obj2);
-  }
-
   /**
    * Selects a sub-state.
-   * @param selectFn State selector (if not provided return full state)
-   * @param comparator A function used to compare the previous and current state for equality. Defaults to a `===` check.
+   * @param selectFn State selector function
+   * @param comparator A function used to compare the previous and current state
+   * for equality. Default is Lodash isEqual check
    * @returns Observable of the selected state
    */
   select<U>(
     selectFn: (state: T) => U,
-    comparator?: '===' | ((previous: U, current: U) => boolean)
+    comparator?: (previous: U, current: U) => boolean
   ) {
     return this.value$.pipe(
       map(selectFn),
-      distinctUntilChanged(
-        comparator
-          ? comparator === '==='
-            ? undefined
-            : comparator
-          : this.compareByJson
-      )
+      distinctUntilChanged(comparator ? comparator : isEqual)
     );
   }
 }

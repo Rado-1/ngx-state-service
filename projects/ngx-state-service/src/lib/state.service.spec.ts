@@ -37,11 +37,19 @@ describe('StateService', () => {
 
   it('varies complex nested state', () => {
     state.set({ a: 1, b: '1', c: { d: 1, e: '1' } });
-    state.setDeep({ c: { f: [1, 2, 3] }, a: 2 });
+
+    state.set({ c: { f: [1, 2, 3] }, a: 2 }, true);
     expect(state.value).toEqual({
       a: 2,
       b: '1',
       c: { d: 1, e: '1', f: [1, 2, 3] },
+    });
+
+    state.setDeep({ c: { f: [3] }, a: 3 });
+    expect(state.value).toEqual({
+      a: 3,
+      b: '1',
+      c: { d: 1, e: '1', f: [3] },
     });
   });
 

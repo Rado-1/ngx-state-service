@@ -21,7 +21,7 @@ export class AppComponent {
   @ViewChild('opacitySelect') opacitySelect!: ElementRef<HTMLInputElement>;
 
   constructor(public globalState: GlobalStateService) {
-    globalState.set({ opacity: '25' });
+    globalState.set({ opacity: '50' });
   }
 
   setOpacity() {

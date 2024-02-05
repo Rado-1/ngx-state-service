@@ -43,11 +43,17 @@ export class TodoListComponent {
     private localState: StateService<LocalState>,
     private globalState: GlobalStateService
   ) {
+    // update todo list count
+    const localFullState$ = this.localState.select(
+      (st) => ({ ...st, count: st.todos.length }),
+      (prev, curr) => prev.todos === curr.todos
+    );
+
     // define unified state
-    this.state$ = combineLatest([localState.value$, globalState.value$]).pipe(
+    this.state$ = combineLatest([globalState.value$, localFullState$]).pipe(
       takeUntilDestroyed(),
-      map(([localState, globalState]) => {
-        return { ...localState, ...globalState };
+      map(([globalState, localFullState]) => {
+        return { ...globalState, ...localFullState };
       })
     );
 
@@ -60,16 +66,6 @@ export class TodoListComponent {
       ],
       disableNewTodo: true,
     });
-
-    // update todo list count
-    this.localState.value$
-      .pipe(
-        takeUntilDestroyed(),
-        distinctUntilChanged((prev, curr) => prev.todos === curr.todos)
-      )
-      .subscribe((st) => {
-        this.localState.value.count = st.todos.length;
-      });
   }
 
   enableNewTodo() {
