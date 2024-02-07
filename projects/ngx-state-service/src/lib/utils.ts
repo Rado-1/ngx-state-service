@@ -1,3 +1,5 @@
+import { Observable, combineLatest, map } from 'rxjs';
+
 // https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript
 export type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -42,4 +44,17 @@ export function mutDeep<
   }
 
   return res;
+}
+
+/**
+ * Composes several observables to one in the form of RxJS combineLatest. The
+ * resulting observable emits objects composed of all properties of all input
+ * observable objects each time any input observable value is emitted.
+ * @param observables Variadic parameter of observables to compose.
+ * @returns Composed observable.
+ */
+export function compose(...observables: Observable<Record<string, any>>[]) {
+  return combineLatest(observables).pipe(
+    map((states) => Object.assign({}, ...states))
+  );
 }

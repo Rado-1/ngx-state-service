@@ -5,9 +5,11 @@ import {
   ElementRef,
   ViewChild,
 } from '@angular/core';
-import { StateService } from '../../../../ngx-state-service/src/public-api';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
+import {
+  StateService,
+  compose,
+} from '../../../../ngx-state-service/src/public-api';
+import { Observable } from 'rxjs';
 import {
   GlobalState,
   GlobalStateService,
@@ -50,12 +52,7 @@ export class TodoListComponent {
     );
 
     // define unified state
-    this.state$ = combineLatest([globalState.value$, localFullState$]).pipe(
-      takeUntilDestroyed(),
-      map(([globalState, localFullState]) => {
-        return { ...globalState, ...localFullState };
-      })
-    );
+    this.state$ = compose(globalState.value$, localFullState$);
 
     // initial state
     this.localState.set({

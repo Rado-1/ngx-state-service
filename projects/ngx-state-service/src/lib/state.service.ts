@@ -30,9 +30,9 @@ export class StateService<T extends Record<string, any>> {
   /**
    * Sets properties of state and propagates the change.
    * @param statusUpdate - Changed properties of state and their new values. It
-   * is given either as an object or as a function returning object
+   * is given either as an object or as a function returning object.
    * @param isDeep - If true, the nested status is changed recursively. If false,
-   * only the top-level properties are changed
+   * only the top-level properties are changed.
    */
   set<U extends RecursivePartial<T>>(
     statusUpdate: U | ((status: T) => U),
@@ -52,7 +52,7 @@ export class StateService<T extends Record<string, any>> {
   /**
    * Sets properties of state recursively and propagates the change.
    * @param statusUpdate - Changed properties of state and their new values. It
-   * is given either as an object or as a function returning object
+   * is given either as an object or as a function returning object.
    */
   setDeep<U extends RecursivePartial<T>>(statusUpdate: U | ((status: T) => U)) {
     this.set(statusUpdate, true);
@@ -60,10 +60,10 @@ export class StateService<T extends Record<string, any>> {
 
   /**
    * Selects a sub-state.
-   * @param selectFn State selector function
+   * @param selectFn State selector function.
    * @param comparator A function used to compare the previous and current state
-   * for equality. Default is Lodash isEqual check
-   * @returns Observable of the selected state
+   * for equality. Default is Lodash isEqual check.
+   * @returns Observable of the selected state.
    */
   select<U>(
     selectFn: (state: T) => U,

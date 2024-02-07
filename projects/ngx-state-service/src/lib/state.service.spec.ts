@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { StateService } from './state.service';
+import { takeWhile } from 'rxjs';
 
 interface LocalState {
   a: number;
@@ -55,11 +56,22 @@ describe('StateService', () => {
 
   it('propagates selected sub-state and derived values', (done: DoneFn) => {
     state.set({ a: 3 });
+    let res: any[] = [];
+
     state
       .select((st) => ({ square: st.a * st.a }))
-      .subscribe((value) => {
-        expect(value).toEqual({ square: 9 });
-        done();
+      .pipe(takeWhile((val) => val.square !== 0))
+      .subscribe({
+        next: (val) => {
+          res.push(val);
+        },
+        complete: () => {
+          expect(res).toEqual([{ square: 9 }, { square: 4 }, { square: 169 }]);
+          done();
+        },
       });
+    state.set({ a: 2 });
+    state.set({ a: 13 });
+    state.set({ a: 0 }); // finish
   });
 });

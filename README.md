@@ -199,7 +199,7 @@ are compared by Lodash isEqual method.
 
 ### Defining global state service
 
-The library itself does not provide global state, but it can be defined as
+The library itself does not provide a global state, but it can be defined as a
 singleton service in the following way:
 
 ```ts
@@ -217,12 +217,12 @@ export interface GlobalState {
 export class GlobalStateService extends StateService<GlobalState> {}
 ```
 
-For convenient accessing of the state and its parts/slices or for querying the
-state from other parts of the application, the service can provide also
-domain-specific methods. In this case, `getUser`, `setUser`, `getRoles`,
-`hasRole`, `addRoles`, etc.
+For convenient accessing of the state properties or for querying the state from
+other parts of the application, the service can provide also domain-specific
+methods. In this case, `getUser`, `setUser`, `getRoles`, `hasRole`, `addRoles`,
+etc.
 
-One application can provide more than one global state services.
+One application can provide more than one independent global state services.
 
 ### Usage global state service
 
@@ -238,7 +238,8 @@ constructor(
 ### Combining global state with local component state
 
 If both states are used in templates it is a good idea to combine them together
-to avoid cascading @if statements.
+to avoid cascading @if statements. `ngx-state-service` provides a utility
+function `compose` for combining Observables from various states to one.
 
 ```ts
 interface UnifiedState extends LocalState, GlobalState {}
@@ -253,19 +254,14 @@ export class AnyComponent {
     ) {
     ...
     // define unified state
-    this.state$ = combineLatest([localState.value$, globalState.value$]).pipe(
-      takeUntilDestroyed(),
-      map(([localState, globalState]) => {
-        return { ...localState, ...globalState };
-      })
-    );
+    this.state$ = compose(localState.value$, globalState.value$);
     ...
   }
 }
 ```
 
 Then just use the `state$` Observable to subscribe for changes of either local
-or global state containing all the unified state properties.
+or global state containing all unified state properties.
 
 ```ts
 @if (state$ | async; as state) {
@@ -280,10 +276,11 @@ or global state containing all the unified state properties.
 
 The library contains also the following utilities:
 
-- Definition of `RecursivePartial` generics type discussed [here](https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript),
-- function `mut` used to create a copy of an object with changed properties, and
+- definition of `RecursivePartial` generics type discussed [here](https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript),
+- function `mut` used to create a copy of an object with changed properties,
 - function `mutDeep` used to create a copy of an object with recursively changed
-  nested properties.
+  nested properties, and
+- function `compose` used to unify Observables; described above.
 
 `mut` and `mutDeep` functions are usually used for immutable changes of objects applied, for example, to change inputs of `OnPush` components.
 

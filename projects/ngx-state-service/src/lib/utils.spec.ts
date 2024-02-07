@@ -1,7 +1,16 @@
-import { mut, mutDeep } from './utils';
+import { delay, interval, map, take } from 'rxjs';
+import { compose, mut, mutDeep } from './utils';
 
 interface TestInterface {
   a: string;
+}
+
+function emitArray(arr: any[], period: number, del = 0) {
+  return interval(period).pipe(
+    take(arr.length),
+    delay(del),
+    map((i) => arr[i])
+  );
 }
 
 describe('utils', () => {
@@ -65,6 +74,26 @@ describe('utils', () => {
     ).toEqual({
       a: { b: 1, c: { d: [3, 2], e: [1] } },
       f: '2',
+    });
+  });
+
+  it('compose returns unified state', (done: DoneFn) => {
+    const observ1$ = emitArray([{ a: 1 }, { a: 2 }], 10, 0);
+    const observ2$ = emitArray([{ b: 1 }, { b: 2 }], 10, 5);
+    let res: any[] = [];
+
+    compose(observ1$, observ2$).subscribe({
+      next: (value) => {
+        res.push(value);
+      },
+      complete: () => {
+        expect(res).toEqual([
+          { a: 1, b: 1 },
+          { a: 2, b: 1 },
+          { a: 2, b: 2 },
+        ]);
+        done();
+      },
     });
   });
 });
