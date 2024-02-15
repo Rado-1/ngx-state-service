@@ -10,7 +10,7 @@ export type RecursivePartial<T> = {
 };
 
 /**
- * Creates a copy of an object with changed properties.
+ * Creates a shallow copy of an object with changed properties.
  * @param obj - Object to change.
  * @param  props - Properties and their values to change.
  * @returns Copy of the object with changed properties.
@@ -23,8 +23,8 @@ export function mut<
 }
 
 /**
- * Creates a copy of an object with changed properties recursively. Simple types
- * and arrays are copied, objects are recursed.
+ * Creates a deep copy of an object with changed properties. Simple types and
+ * arrays are copied, objects are recursed.
  * @param obj - Object to change.
  * @param  props - Properties and their values to change.
  * @returns Copy of the object with changed properties.

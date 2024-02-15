@@ -39,7 +39,7 @@ describe('StateService', () => {
   it('varies complex nested state', () => {
     state.set({ a: 1, b: '1', c: { d: 1, e: '1' } });
 
-    state.set({ c: { f: [1, 2, 3] }, a: 2 }, true);
+    state.set({ c: { f: [1, 2, 3] }, a: 2 }, { isDeep: true });
     expect(state.value).toEqual({
       a: 2,
       b: '1',
@@ -73,5 +73,23 @@ describe('StateService', () => {
     state.set({ a: 2 });
     state.set({ a: 13 });
     state.set({ a: 0 }); // finish
+  });
+
+  it('can use storage', () => {
+    state.config({
+      enableStorage: true,
+      storage: sessionStorage,
+      stateName: 'Test',
+    });
+    state.set({ a: 0 });
+    state.config({ enableStorage: false });
+    state.set({ a: 1 });
+    state.config({ enableStorage: true });
+    expect(state.value).toEqual({ a: 0 });
+    state.config({ enableStorage: false });
+    state.removeStoredState();
+    state.set({ a: 88 });
+    state.config({ enableStorage: true });
+    expect(state.value).toEqual({ a: 88 });
   });
 });

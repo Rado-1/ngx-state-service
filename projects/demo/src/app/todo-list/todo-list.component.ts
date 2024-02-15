@@ -5,11 +5,11 @@ import {
   ElementRef,
   ViewChild,
 } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   StateService,
   compose,
 } from '../../../../ngx-state-service/src/public-api';
-import { Observable } from 'rxjs';
 import {
   GlobalState,
   GlobalStateService,
@@ -34,6 +34,7 @@ interface UnifiedState extends LocalState, GlobalState {}
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
+  providers: [StateService],
   templateUrl: './todo-list.component.html',
   styleUrl: './todo-list.component.scss',
 })
@@ -45,24 +46,35 @@ export class TodoListComponent {
     private localState: StateService<LocalState>,
     private globalState: GlobalStateService
   ) {
-    // update todo list count
-    const localFullState$ = this.localState.select(
-      (st) => ({ ...st, count: st.todos.length }),
-      (prev, curr) => prev.todos === curr.todos
+    localState.config({
+      enableStorage: true,
+      enableDevTools: true,
+      stateName: 'TodoList',
+    });
+
+    // initial state
+    this.localState.set(
+      !!this.localState.value
+        ? { disableNewTodo: true }
+        : {
+            todos: [
+              { text: 'Just do it', done: false, timestamp: new Date() },
+              { text: 'Go to the office', done: false, timestamp: new Date() },
+              { text: 'Go shopping', done: true, timestamp: new Date() },
+            ],
+            disableNewTodo: true,
+          },
+      { actionName: 'init' }
     );
+
+    // update todo list count
+    const localFullState$ = this.localState.select((st) => ({
+      ...st,
+      count: st.todos.length,
+    }));
 
     // define unified state
     this.state$ = compose(globalState.value$, localFullState$);
-
-    // initial state
-    this.localState.set({
-      todos: [
-        { text: 'Just do it', done: false, timestamp: new Date() },
-        { text: 'Go to the office', done: false, timestamp: new Date() },
-        { text: 'Go shopping', done: true, timestamp: new Date() },
-      ],
-      disableNewTodo: true,
-    });
   }
 
   enableNewTodo() {
@@ -70,9 +82,15 @@ export class TodoListComponent {
     const val = this.newTodoTextInput.nativeElement.value;
 
     if (disabled && val) {
-      this.localState.setDeep({ disableNewTodo: false });
+      this.localState.set(
+        { disableNewTodo: false },
+        { actionName: 'enableNewTodo' }
+      );
     } else if (!disabled && !val) {
-      this.localState.setDeep({ disableNewTodo: true });
+      this.localState.set(
+        { disableNewTodo: true },
+        { actionName: 'disableNewTodo' }
+      );
     }
   }
 
@@ -89,17 +107,20 @@ export class TodoListComponent {
       ];
 
       this.newTodoTextInput.nativeElement.value = '';
-      this.localState.set({
-        todos: newTodos,
-        disableNewTodo: true,
-      });
+      this.localState.set(
+        {
+          todos: newTodos,
+          disableNewTodo: true,
+        },
+        { actionName: 'newTodo' }
+      );
     }
   }
 
   todoDoneToggle(todo: Todo) {
     todo.done = !todo.done;
     // just propagate mutation of state
-    this.localState.set({});
+    this.localState.set({}, { actionName: 'toggleDone' });
   }
 
   deleteTodo(todoIndex: number) {
@@ -107,11 +128,14 @@ export class TodoListComponent {
     // this.state.value.todoList.todos.splice(todoIndex);
     // this.state.set({});
 
-    this.localState.setDeep((state) => ({
-      todos: [
-        ...state.todos.slice(0, todoIndex),
-        ...state.todos.slice(todoIndex + 1),
-      ],
-    }));
+    this.localState.setDeep(
+      (state) => ({
+        todos: [
+          ...state.todos.slice(0, todoIndex),
+          ...state.todos.slice(todoIndex + 1),
+        ],
+      }),
+      { actionName: 'delete' }
+    );
   }
 }

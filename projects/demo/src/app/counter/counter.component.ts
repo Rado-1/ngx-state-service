@@ -5,11 +5,11 @@ import {
   ElementRef,
   ViewChild,
 } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
   StateService,
   compose,
 } from '../../../../ngx-state-service/src/public-api';
-import { Observable } from 'rxjs';
 import {
   GlobalState,
   GlobalStateService,
@@ -32,9 +32,9 @@ interface UnifiedState extends GlobalState, LocalState {}
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
+  providers: [DecimalPipe, StateService],
   templateUrl: './counter.component.html',
   styleUrl: './counter.component.scss',
-  providers: [DecimalPipe],
 })
 export class CounterComponent {
   @ViewChild('counterMaxInput') counterMaxInput!: ElementRef<HTMLInputElement>;

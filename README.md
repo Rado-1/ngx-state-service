@@ -48,7 +48,9 @@ npm i ngx-state-service
 
 ## Initial setup
 
-Just define the local state interface and inject the service. The service is parametrized with the state interface.
+Define the local state interface and inject the service. The service is
+parametrized with the state interface. To create a component-specific instance
+of `StateService` list it in component's `providers`.
 
 ```ts
 import { StateService } from 'ngx-state-service';
@@ -84,18 +86,27 @@ export class CounterComponent {
 }
 ```
 
-Alternatively, you can omit locally defined provider for `StateService` and put
-it to the global application configuration in `app.config.ts` for standalone
-applications or in `app.module.ts` for module-based applications.
+## Configuration of the State Service
+
+State service can be configured by the following parameters:
+
+| Option             | Description                                                                                                                    | Default        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| _enableDevTools_   | If true, [Redux DevTools](https://github.com/reduxjs/redux-devtools) browser extension is enabled to inspect changes of state. | `false`        |
+| _enableConsoleLog_ | If true, changes of state are logged to console.                                                                               | `false`        |
+| _enableStorage_    | If true, the latest state is persisted in storage and reloaded if changed to true.                                             | `false`        |
+| _storage_          | Storage for persisting the state. Either `localStorage` or `sessionStorage`.                                                   | `localStorage` |
+| _stateName_        | The name of the state used in Redux DevTools, console log and also as the key for storage.                                     | `'STATE_'<id>` |
+
+To change the default service configuration, use `config` metod with a set of
+changed parameters.
 
 ```ts
-export const appConfig: ApplicationConfig = {
-  providers: [
-  ...
-  StateService,
-  ...
-  ],
-};
+localState.config({
+  enableStorage: true,
+  enableConsoleLog: true,
+  name: "TodoList",
+});
 ```
 
 ## Usage
@@ -108,9 +119,9 @@ Arbitrary subset of state top-level properties can be set by the `set` method.
 this.localState.set({ counterMax: 10 });
 ```
 
-In the case of nested state (where properties of a state are objects themselves),
-updating of inner properties require setting of `isDeep` parameter to true or
-use of `setDeep` method instead.
+In the case of nested state (where properties of a state are objects
+themselves), updating of inner properties require setting of `isDeep` option to
+`true` or use of `setDeep` method instead.
 
 ```ts
 interface LocalState {
@@ -122,8 +133,8 @@ interface LocalState {
 // initial state
 this.localState.set({ a: 1, c: { d: false, e: "x" } });
 
-// isDeep parameter set to true
-this.localState.set({ c: { e: "y" } }, true);
+// isDeep option set to true
+this.localState.set({ c: { e: "y" } }, { isDeep: true });
 // or
 this.localState.setDeep({ c: { e: "y" } });
 
@@ -138,6 +149,15 @@ with functional parameters.
 this.localState.set((state) => ({ a: state.a + 1 }));
 
 this.localState.setDeep((state) => ({ c: { d: !state.c.d } }));
+```
+
+Setting a state can optionally specify also the `actionName` option which is
+used in Redux DevTools and/or console log to identify domain-specific
+method/purpose for updating the state. If not specified, `'set'` is used by
+default.
+
+```ts
+this.localState.set((state) => ({ a: state.a + 1 }), { actionName: "increment" });
 ```
 
 ### Getting the current state
@@ -277,9 +297,10 @@ or global state containing all unified state properties.
 The library contains also the following utilities:
 
 - definition of `RecursivePartial` generics type discussed [here](https://stackoverflow.com/questions/41980195/recursive-partialt-in-typescript),
-- function `mut` used to create a copy of an object with changed properties,
-- function `mutDeep` used to create a copy of an object with recursively changed
-  nested properties, and
+- function `mut` (for "mutate") used to create a shallow copy of an object with
+  changed properties,
+- function `mutDeep` used to create a deep copy of an object with recursively
+  changed nested properties, and
 - function `compose` used to unify Observables; described above.
 
 `mut` and `mutDeep` functions are usually used for immutable changes of objects applied, for example, to change inputs of `OnPush` components.
