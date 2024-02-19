@@ -8,12 +8,18 @@ import { CommonModule } from '@angular/common';
 import { CounterComponent } from './counter/counter.component';
 import { TodoListComponent } from './todo-list/todo-list.component';
 import { GlobalStateService } from './services/global-state.service';
+import { CalculatorComponent } from './calculator/calculator.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, CounterComponent, TodoListComponent],
+  imports: [
+    CommonModule,
+    CounterComponent,
+    CalculatorComponent,
+    TodoListComponent,
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

@@ -9,8 +9,8 @@ Angular `14.0.0` or higher is required.
 ## About
 
 **ngx-state-service** provides much simpler approach than other robust state
-management libraries, like [ngrx](https://ngrx.io/) or
-[ngxs](https://www.ngxs.io/), and is intended for developers who need
+management libraries, such as [NgRx](https://ngrx.io/) or
+[NGXS](https://www.ngxs.io/), and is intended for developers who need
 straightforward, type safe, effective, and practically usable solution with
 minimal boilerplate.
 
@@ -35,10 +35,11 @@ be modified at arbitrary level of nesting.
 
 Internally, a state is represented by an immutable object of which changes are
 propagated to other parts of the application as [RxJS
-Observable](https://rxjs.dev/guide/observable). Another possibility is to read
-the current value of a state by getter. This allows effective usage of a state
-in component TypeScript code and templates, including OnPush change detection
-strategy.
+Observable](https://rxjs.dev/guide/observable) or as Angular
+[Signals](https://angular.dev/guide/signals). Another possibility is to read the
+current value of state by getter. This combination of accessing allows effective
+usage of state in component TypeScript code and templates, including OnPush
+change detection strategy.
 
 ## Installation
 
@@ -99,7 +100,8 @@ State service can be configured by the following parameters:
 | _stateName_        | The name of the state used in Redux DevTools, console log and also as the key for storage.                                     | `'STATE_'<id>` |
 
 To change the default service configuration, use `config` metod with a set of
-changed parameters.
+changed parameters. It is usually called in component constructor or in
+`ngOnInitOnInit` callback, but it's calling is not restricted to these places.
 
 ```ts
 localState.config({
@@ -171,8 +173,7 @@ this.localState.value.counterMax;
 ### Observing the changes of state
 
 It is possible to subscribe for changes of a state through the `value$`
-Observervable. This is typically done in component template with `OnPush` change
-detection strategy.
+**Observervable**.
 
 ```html
 @if (localState.value$ | async; as state) { ...
@@ -191,6 +192,22 @@ Angular (older versions of template syntax).
 <ng-container *ngIf="localState.value$ | async as state"> ... </ng-container>
 ```
 
+Another possibility is to access the state changes by **Signal** propagated by
+the `valueSignal` property.
+
+```ts
+stateSignal = this.localState.valueSignal;
+```
+
+Signal is then used in template.
+
+```html
+{{ stateSignal().counter }}
+```
+
+Usage of Observables or/and signals is typical for component templates with
+`OnPush` change detection strategy.
+
 ### Observing sub-states and derived states
 
 It is possible to subscribe for changes of a sub-state and also to modify the
@@ -199,7 +216,7 @@ method which can be used to slice complex states and/or to compute derived
 values.
 
 ```ts
-// compute derived properties
+// compute derived properties propagated as Observable
 const localExtendedState$ = this.localState.select((st) => {
   const fraction = st.counterMax ? st.counter / st.counterMax : 0;
   return {
@@ -214,6 +231,17 @@ const localExtendedState$ = this.localState.select((st) => {
 Only different values are emitted. Comparing of previous and current values can
 be controlled by the optional `comparator` parameter. If unspecified, objects
 are compared by Lodash isEqual method.
+
+For state chages propagated by signals, the `computed` Angular function can be
+used to transform the state to a single value, slice or object of different
+type.
+
+```ts
+counter: Signal<number>;
+...
+// selection of one property from localState propagated as signal
+this.counter = computed(() => this.localState.valueSignal().counter);
+```
 
 ## Global application state
 
@@ -292,6 +320,29 @@ or global state containing all unified state properties.
 }
 ```
 
+Combining states in the signal way is even simpler. Just use standard Angular
+`computed` function.
+
+```ts
+...
+export class CalculatorComponent {
+  state: Signal<UnifiedState>;
+
+  constructor(
+    private localState: StateService<LocalState>,
+    private globalState: GlobalStateService
+  ) {
+    // define unified state
+    this.state = computed(() => ({
+      ...globalState.valueSignal(),
+      ...localState.valueSignal(),
+    }));
+
+...
+  }
+}
+```
+
 ## Utilities
 
 The library contains also the following utilities:
@@ -328,4 +379,5 @@ npm publish
 
 ## Demo project
 
-[Here](projects/demo) you can find a demo project. See it running on [StackBlitz](https://stackblitz.com/~/github.com/Rado-1/ngx-state-service).
+[Here](projects/demo) you can find a demo project. See it running on
+[StackBlitz](https://stackblitz.com/~/github.com/Rado-1/ngx-state-service).

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { StateService } from './state.service';
-import { takeWhile } from 'rxjs';
+import { forkJoin, takeWhile, tap } from 'rxjs';
 
 interface LocalState {
   a: number;
@@ -39,7 +39,7 @@ describe('StateService', () => {
   it('varies complex nested state', () => {
     state.set({ a: 1, b: '1', c: { d: 1, e: '1' } });
 
-    state.set({ c: { f: [1, 2, 3] }, a: 2 }, { isDeep: true });
+    state.setDeep({ c: { f: [1, 2, 3] }, a: 2 });
     expect(state.value).toEqual({
       a: 2,
       b: '1',
@@ -54,22 +54,61 @@ describe('StateService', () => {
     });
   });
 
-  it('propagates selected sub-state and derived values', (done: DoneFn) => {
-    state.set({ a: 3 });
-    let res: any[] = [];
+  it('select propagates sub-state', (done: DoneFn) => {
+    state.set({ a: 1, b: '1', c: { d: 1, e: '1' } });
+    let res: Pick<LocalState, 'a' | 'b'>[] = [];
 
     state
-      .select((st) => ({ square: st.a * st.a }))
-      .pipe(takeWhile((val) => val.square !== 0))
+      .select(['a', 'b'])
+      .pipe(takeWhile((val) => val.a !== 0))
       .subscribe({
         next: (val) => {
           res.push(val);
         },
         complete: () => {
-          expect(res).toEqual([{ square: 9 }, { square: 4 }, { square: 169 }]);
+          expect(res).toEqual([
+            { a: 1, b: '1' },
+            { a: 2, b: '1' },
+            { a: 13, b: '2' },
+          ]);
           done();
         },
       });
+    state.set({ a: 2 });
+    state.set({ a: 13, b: '2' });
+    state.set({ a: 0 }); // finish
+  });
+
+  it('select propagates derived values', (done: DoneFn) => {
+    state.set({ a: 3 });
+    let res1: any[] = [];
+    let res2: any[] = [];
+
+    forkJoin([
+      state
+        .select((st) => ({ square: st.a * st.a }))
+        .pipe(
+          takeWhile((val) => val.square !== 0),
+          tap((val) => {
+            res1.push(val);
+          })
+        ),
+      state
+        .select((st) => st.a * st.a)
+        .pipe(
+          takeWhile((val) => val !== 0),
+          tap((val) => {
+            res2.push(val);
+          })
+        ),
+    ]).subscribe({
+      complete: () => {
+        expect(res1).toEqual([{ square: 9 }, { square: 4 }, { square: 169 }]);
+        expect(res2).toEqual([9, 4, 169]);
+        done();
+      },
+    });
+
     state.set({ a: 2 });
     state.set({ a: 13 });
     state.set({ a: 0 }); // finish

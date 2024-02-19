@@ -1,0 +1,9 @@
+.bd-calc-row {
+  width: 40%;
+  min-width: 20rem;
+
+  .row + .row,
+  .bd-example-cssgrid .grid + .grid {
+    margin-top: 1rem;
+  }
+}

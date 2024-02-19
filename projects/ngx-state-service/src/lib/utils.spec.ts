@@ -2,7 +2,10 @@ import { delay, interval, map, take } from 'rxjs';
 import { compose, mut, mutDeep } from './utils';
 
 interface TestInterface {
-  a: string;
+  a: number;
+  b: string;
+  c?: { d: number; e?: boolean };
+  f?: number;
 }
 
 function emitArray(arr: any[], period: number, del = 0) {
@@ -23,7 +26,7 @@ describe('utils', () => {
 
     expect(mut({ a: '1', b: 1 }, { a: '2' })).toEqual({ a: '2', b: 1 });
 
-    expect(mut({ a: '1', b: true }, { b: false })).toEqual({
+    expect(mut({ a: '1', b: true as boolean }, { b: false })).toEqual({
       a: '1',
       b: false,
     });
@@ -36,8 +39,8 @@ describe('utils', () => {
   });
 
   it('mut can change values of composite types', () => {
-    expect(mut({ a: { b: 1, c: 1 }, d: 1 }, { a: { b: 2 } })).toEqual({
-      a: { b: 2 } as any /* because of incompatible with original object */,
+    expect(mut({ a: { b: 1, c: 1 }, d: 1 }, { a: { b: 2, c: 1 } })).toEqual({
+      a: { b: 2, c: 1 },
       d: 1,
     });
 
@@ -52,10 +55,10 @@ describe('utils', () => {
   });
 
   it('mut returns correct types for assignments', () => {
-    let variable: TestInterface = { a: 'a' };
+    let variable: TestInterface = { a: 1, b: '1' };
 
-    variable = mut(variable, { a: 'x' });
-    expect(variable).toEqual({ a: 'x' });
+    variable = mut(variable, { a: 2, f: 2 });
+    expect(variable).toEqual({ a: 2, b: '1', f: 2 });
   });
 
   it('mutDeep can change multiple recursive values', () => {

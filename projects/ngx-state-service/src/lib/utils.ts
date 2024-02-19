@@ -15,10 +15,10 @@ export type RecursivePartial<T> = {
  * @param  props - Properties and their values to change.
  * @returns Copy of the object with changed properties.
  */
-export function mut<
-  T extends RecursivePartial<U>,
-  U extends Record<string, any>
->(obj: T, props: U): T {
+export function mut<T extends Record<string, any>, U extends Partial<T>>(
+  obj: T,
+  props: U
+): T {
   return { ...obj, ...props };
 }
 
@@ -30,14 +30,14 @@ export function mut<
  * @returns Copy of the object with changed properties.
  */
 export function mutDeep<
-  T extends RecursivePartial<U>,
-  U extends Record<string, any>
+  T extends Record<string, any>,
+  U extends RecursivePartial<T>
 >(obj: T, props: U): T {
   let res = obj;
 
   for (const [key, value] of Object.entries(props)) {
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      res = { ...res, ...{ [key]: mutDeep(res[key] as any, value) } };
+      res = { ...res, ...{ [key]: mutDeep(res[key], value) } };
     } else {
       res = { ...res, ...{ [key]: value } };
     }

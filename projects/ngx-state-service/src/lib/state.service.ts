@@ -1,7 +1,8 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, WritableSignal, inject, signal } from '@angular/core';
 import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
 import { RecursivePartial, mut, mutDeep } from './utils';
 import isEqual from 'lodash-es/isEqual';
+import pick from 'lodash-es/pick';
 import { DevtoolsService } from './devtools.service';
 
 /**
@@ -13,18 +14,24 @@ export interface StateServiceConfig {
    */
   enableDevTools?: boolean;
 
-  /** If true, changes of state are logged to console. */
+  /**
+   * If true, changes of state are logged to console.
+   */
   enableConsoleLog?: boolean;
 
-  /** If true, the state is persisted in storage. */
+  /**
+   * If true, the state is persisted in storage.
+   */
   enableStorage?: boolean;
 
-  /** Storage for persisting the state. Either `localStorage` or
+  /**
+   * Storage for persisting the state. Either `localStorage` or
    * `sessionStorage`.
    */
   storage?: Storage;
 
-  /** The name of the state used in Redux DevTools, console log and also as the
+  /**
+   * The name of the state used in Redux DevTools, console log and also as the
    * key for storage.
    */
   stateName?: string;
@@ -34,12 +41,8 @@ export interface StateServiceConfig {
  * Options for `set` method.
  */
 export interface StateSettingOptions {
-  /** If true, the nested status is changed recursively. If false,
-   * only the top-level properties are changed.
-   */
-  isDeep?: boolean;
-
-  /** Optional name of the action used by console logging or by Redux DevTools.
+  /**
+   * Optional name of the action used by console logging or by Redux DevTools.
    */
   actionName?: string;
 }
@@ -66,8 +69,15 @@ export class StateService<T extends Record<string, any>> {
   private devtools = inject(DevtoolsService);
 
   private stateValueSubject: BehaviorSubject<T>;
-  /** Observable of the current state. */
+  /**
+   * Observable of the current state value.
+   */
   value$: Observable<T>;
+
+  /**
+   * Signal of the current state value.
+   */
+  valueSignal: WritableSignal<T> = signal(undefined as any);
 
   constructor() {
     this.stateValueSubject = new BehaviorSubject<T>(undefined as any);
@@ -87,12 +97,14 @@ export class StateService<T extends Record<string, any>> {
       !!this.configuration.stateName;
 
     if (configUpdate.enableStorage && this.useStorage) {
-      const val = this.configuration.storage!.getItem(
+      const storedVal = this.configuration.storage!.getItem(
         this.configuration.stateName!
       );
 
-      if (val) {
-        this.stateValueSubject.next(JSON.parse(val) as T);
+      if (storedVal) {
+        const val = JSON.parse(storedVal) as T;
+        this.stateValueSubject.next(val);
+        this.valueSignal.set(val);
       }
     }
 
@@ -101,36 +113,29 @@ export class StateService<T extends Record<string, any>> {
   }
 
   /**
-   * Returns the current state.
+   * Returns the current state value.
    */
   get value() {
     return this.stateValueSubject.value as T;
   }
 
-  /**
-   * Sets properties of state and propagates the change.
-   * @param statusUpdate - Changed properties of state and their new values. It
-   * is given either as an object or as a function returning object.
-   * @param options - State setting options. Default `isDeep` is *false* and
-   * `actionName` is *'set'*.
-   */
-  set<U extends RecursivePartial<T>>(
+  /** @internal */
+  private _set<U extends RecursivePartial<T>>(
     statusUpdate: U | ((status: T) => U),
+    updateFn: (obj: T, props: U) => T,
     options?: StateSettingOptions
   ) {
     // defaults
-    const isDeep = options?.isDeep ?? false;
     const actionName = options?.actionName ?? 'set';
 
     const statusUpdateValue =
       typeof statusUpdate === 'function'
         ? statusUpdate(this.value)
         : statusUpdate;
-    const val = isDeep
-      ? mutDeep(this.value, statusUpdateValue)
-      : mut(this.value, statusUpdateValue);
+    const val = updateFn(this.value, statusUpdateValue);
 
     this.stateValueSubject.next(val as T);
+    this.valueSignal.set(val);
 
     if (this.useStorage) {
       this.configuration.storage!.setItem(
@@ -149,39 +154,79 @@ export class StateService<T extends Record<string, any>> {
   }
 
   /**
+   * Sets properties of state and propagates the change.
+   * @param statusUpdate - Changed properties of state and their new values. It
+   * is given either as an object or as a function returning object.
+   * @param options - Optional state setting options. Default `actionName` is
+   * *'set'*.
+   */
+  set(
+    statusUpdate: Partial<T> | ((status: T) => Partial<T>),
+    options?: StateSettingOptions
+  ) {
+    this._set(statusUpdate, mut, options);
+  }
+
+  /**
    * Sets properties of state deeply and propagates the change.
    * @param statusUpdate - Changed properties of state and their new values. It
    * is given either as an object or as a function returning object.
-   * @param options - State setting options. `isDeep` is always set to *true*.
+   * @param options - Optional state setting options. Default `actionName` is
+   * *'set'*.
    */
-  setDeep<U extends RecursivePartial<T>>(
-    statusUpdate: U | ((status: T) => U),
+  setDeep(
+    statusUpdate: RecursivePartial<T> | ((status: T) => RecursivePartial<T>),
     options?: StateSettingOptions
   ) {
-    this.set(statusUpdate, { ...options, isDeep: true });
+    this._set(statusUpdate, mutDeep, options);
   }
 
   /**
    * Selects a sub-state.
-   * @param selectFn State selector function.
-   * @param comparator A function used to compare the previous and current state
-   * for equality. Default is Lodash isEqual check.
-   * @returns Observable of the selected state.
+   * @param keys An array of state property keys to select.
+   * @param comparator An optional function used to compare the previous and
+   * the current selected tate for equality. Default is Lodash isEqual check.
+   * @returns Observable of the selected sub-state.
+   */
+  select<K extends keyof T, U extends Pick<T, K>>(
+    keys: K[],
+    comparator?: (previous: U, current: U) => boolean
+  ): Observable<U>;
+
+  /**
+   * Selects a sub-state or transforms the state to another type.
+   * @param selector A selection/transformation function.
+   * @param comparator An optional function used to compare the previous and
+   * the current transformed state for equality. Default is Lodash isEqual
+   * check.
+   * @returns Observable of the transformed state.
    */
   select<U>(
-    selectFn: (state: T) => U,
+    selector: (state: T) => U,
+    comparator?: (previous: U, current: U) => boolean
+  ): Observable<U>;
+
+  /**
+   * @internal
+   */
+  select<U>(
+    selector: (keyof U)[] | ((state: T) => U),
     comparator?: (previous: U, current: U) => boolean
   ) {
+    const selectorFn =
+      typeof selector === 'function'
+        ? selector
+        : (state: T) => pick(state, selector) as U;
     return this.value$.pipe(
-      map(selectFn),
+      map(selectorFn),
       distinctUntilChanged(comparator ? comparator : isEqual)
     );
   }
 
   /**
    * Removes state from storage.
-   * @param storage - Optional specification of storage. The default value is taken
-   * from configuration `storage` property.
+   * @param storage - Optional specification of storage. The default value is
+   * taken from configuration `storage` property.
    */
   removeStoredState(storage?: Storage) {
     const usedStorage = storage ?? this.configuration.storage;

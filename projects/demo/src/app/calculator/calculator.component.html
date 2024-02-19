@@ -1,0 +1,134 @@
+<div
+  class="accordion-item bg-primary mb-2"
+  [ngClass]="'bg-opacity-' + state().opacity"
+>
+  <h2 class="accordion-header">
+    <button
+      class="accordion-button"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#panelCalculator"
+      aria-expanded="true"
+      aria-controls="panelCalculator"
+    >
+      <b>Calculator</b>
+    </button>
+  </h2>
+  <div id="panelCalculator" class="accordion-collapse collapse show">
+    <div class="accordion-body">
+      <div class="container bd-calc-row">
+        <div class="row bg-light rounded shadow">
+          <div class="fs-6">
+            @if (state(); as state) {
+            {{ state.first }} {{ state.operator ? label[state.operator] : "" }}
+            {{ state.second !== undefined ? state.second + " =" : "" }}
+            }
+          </div>
+          <div class="fs-3 text-end">
+            {{ state().current }}
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(1)">
+              1
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(2)">
+              2
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(3)">
+              3
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="operator('/')">
+              ÷
+            </button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(4)">
+              4
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(5)">
+              5
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(6)">
+              6
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="operator('*')">
+              ×
+            </button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(7)">
+              7
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(8)">
+              8
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(9)">
+              9
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="operator('-')">
+              -
+            </button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col d-grid">
+            <button type="button" class="btn btn-warning" (click)="reset()">
+              CE
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="digit(0)">
+              0
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="toggleSign()">
+              ±
+            </button>
+          </div>
+          <div class="col d-grid">
+            <button type="button" class="btn btn-light" (click)="operator('+')">
+              +
+            </button>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col d-grid">
+            <button type="button" class="btn btn-warning" (click)="equals()">
+              =
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -13,8 +13,8 @@ Angular `14.0.0` or higher is required.
 ## About
 
 **ngx-state-service** provides much simpler approach than other robust state
-management libraries, like [ngrx](https://ngrx.io/) or
-[ngxs](https://www.ngxs.io/), and is intended for developers who need
+management libraries, such as [NgRx](https://ngrx.io/) or
+[NGXS](https://www.ngxs.io/), and is intended for developers who need
 straightforward, type safe, effective, and practically usable solution with
 minimal boilerplate.
 
@@ -27,3 +27,6 @@ state shared among components.
 
 For documentation and demo see the project's [GitHub
 repository](https://github.com/Rado-1/ngx-state-service).
+
+Running demo project see on
+[StackBlitz](https://stackblitz.com/~/github.com/Rado-1/ngx-state-service).
