@@ -4,7 +4,7 @@ Lightweight state management library for Angular.
 
 ## Compatibility with Angular versions
 
-Angular `14.0.0` or higher is required.
+Angular `16.0.0` or higher is required.
 
 ## About
 
