@@ -16,14 +16,14 @@ minimal boilerplate.
 
 Even if the primary motivation was to solve the problem of local
 component state for OnPush change detection strategy seamlessly propagated to
-component template, the library can be used also for managing global application
-state shared among components.
+component template by RxJS Observables and Angular Signals, the library can be
+used also for managing global application state shared among components.
 
 ## Concepts
 
 State management is provided by a non-singleton service, called `StateService`,
 which can be injected to a component to manage its local state or to a
-(singleton) service, e.g., to manage global application state. This service
+(singleton) service, to manage global application state. This service
 keeps the state, provides methods for setting and getting the state and
 propagates its changes.
 
@@ -35,8 +35,8 @@ be modified at arbitrary level of nesting.
 
 Internally, a state is represented by an immutable object of which changes are
 propagated to other parts of the application as [RxJS
-Observable](https://rxjs.dev/guide/observable) or as Angular
-[Signals](https://angular.dev/guide/signals). Another possibility is to read the
+Observable](https://rxjs.dev/guide/observable) or as [Angular
+Signal](https://angular.dev/guide/signals). Another possibility is to read the
 current value of state by getter. This combination of accessing allows effective
 usage of state in component TypeScript code and templates, including OnPush
 change detection strategy.
