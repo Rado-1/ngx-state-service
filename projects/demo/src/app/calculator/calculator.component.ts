@@ -45,6 +45,7 @@ export class CalculatorComponent {
     private globalState: GlobalStateService
   ) {
     localState.config({
+      useSignal: true,
       enableDevTools: true,
       stateName: 'Calculator',
     });

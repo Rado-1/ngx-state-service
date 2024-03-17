@@ -93,6 +93,8 @@ State service can be configured by the following parameters:
 
 | Option             | Description                                                                                                                    | Default        |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| _useObservable_    | If true, changes of state are propagated by RxJS Observable.                                                                   | `true`         |
+| _useSignal_        | If true, changes of state are propagated by Angular Signal.                                                                    | `false`        |
 | _enableDevTools_   | If true, [Redux DevTools](https://github.com/reduxjs/redux-devtools) browser extension is enabled to inspect changes of state. | `false`        |
 | _enableConsoleLog_ | If true, changes of state are logged to console.                                                                               | `false`        |
 | _enableStorage_    | If true, the latest state is persisted in storage and reloaded if changed to true.                                             | `false`        |

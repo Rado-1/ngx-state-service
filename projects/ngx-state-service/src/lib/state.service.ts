@@ -9,6 +9,16 @@ import { DevtoolsService } from './devtools.service';
  * Configuration of StateService.
  */
 export interface StateServiceConfig {
+  /**
+   * If true, changes of state are propagated by RxJS Observable.
+   */
+  useObservable?: boolean;
+
+  /**
+   * If true, changes of state are propagated by signal.
+   */
+  useSignal?: boolean;
+
   /** If true, Redux DevTools browser extension is enabled to inspect changes of
    * state.
    */
@@ -57,66 +67,70 @@ let stateId = 0;
  */
 @Injectable()
 export class StateService<T extends Record<string, any>> {
-  private configuration: StateServiceConfig = {
+  private _configuration: StateServiceConfig = {
+    useObservable: true,
+    useSignal: false,
     enableDevTools: false,
     enableConsoleLog: false,
     enableStorage: false,
     storage: localStorage,
     stateName: 'STATE_' + stateId++,
   };
-  private useStorage = false;
-  private useDevtools = false;
-  private devtools = inject(DevtoolsService);
+  private _useStorage = false;
+  private _useDevtools = false;
+  private _devtools = inject(DevtoolsService);
 
-  private stateValueSubject: BehaviorSubject<T>;
+  private _stateValueSubject = new BehaviorSubject<T>(undefined as any);
+
   /**
    * Observable of the current state value.
    */
-  value$: Observable<T>;
+  readonly value$ = this._stateValueSubject.asObservable();
 
   /**
    * Signal of the current state value.
    */
-  valueSignal: WritableSignal<T> = signal(undefined as any);
-
-  constructor() {
-    this.stateValueSubject = new BehaviorSubject<T>(undefined as any);
-    this.value$ = this.stateValueSubject.asObservable();
-  }
+  readonly valueSignal: WritableSignal<T> = signal(undefined as any);
 
   /**
    * Updates configuration of StateService instance with all or some properties.
    * @param configUpdate - Object of updated configuration properties.
    */
   config(configUpdate: StateServiceConfig) {
-    this.configuration = { ...this.configuration, ...configUpdate };
+    this._configuration = { ...this._configuration, ...configUpdate };
 
-    this.useStorage =
-      !!this.configuration.enableStorage &&
-      !!this.configuration.storage &&
-      !!this.configuration.stateName;
+    this._useStorage =
+      !!this._configuration.enableStorage &&
+      !!this._configuration.storage &&
+      !!this._configuration.stateName;
 
-    if (configUpdate.enableStorage && this.useStorage) {
-      const storedVal = this.configuration.storage!.getItem(
-        this.configuration.stateName!
+    if (configUpdate.enableStorage && this._useStorage) {
+      const storedVal = this._configuration.storage!.getItem(
+        this._configuration.stateName!
       );
 
       if (storedVal) {
         const val = JSON.parse(storedVal) as T;
-        this.stateValueSubject.next(val);
-        this.valueSignal.set(val);
+
+        if (this._configuration.useObservable) {
+          this._stateValueSubject.next(val);
+        }
+
+        if (this._configuration.useSignal) {
+          setTimeout(() => this.valueSignal.set(val));
+        }
       }
     }
 
-    this.useDevtools =
-      !!this.configuration.enableDevTools && !!this.configuration.stateName;
+    this._useDevtools =
+      !!this._configuration.enableDevTools && !!this._configuration.stateName;
   }
 
   /**
    * Returns the current state value.
    */
   get value() {
-    return this.stateValueSubject.value as T;
+    return this._stateValueSubject.value as T;
   }
 
   /** @internal */
@@ -134,29 +148,35 @@ export class StateService<T extends Record<string, any>> {
         : statusUpdate;
     const val = updateFn(this.value, statusUpdateValue);
 
-    this.stateValueSubject.next(val as T);
-    this.valueSignal.set(val);
+    if (this._configuration.useObservable) {
+      this._stateValueSubject.next(val);
+    }
 
-    if (this.useStorage) {
-      this.configuration.storage!.setItem(
-        this.configuration.stateName!,
+    if (this._configuration.useSignal) {
+      this.valueSignal.set(val);
+    }
+
+    if (this._useStorage) {
+      this._configuration.storage!.setItem(
+        this._configuration.stateName!,
         JSON.stringify(val)
       );
     }
 
-    if (this.configuration.enableConsoleLog) {
-      console.log(`${this.configuration.stateName}.${actionName}`, val);
+    if (this._configuration.enableConsoleLog) {
+      console.log(`${this._configuration.stateName}.${actionName}`, val);
     }
 
-    if (this.useDevtools) {
-      this.devtools.send(this.configuration.stateName!, actionName, val);
+    if (this._useDevtools) {
+      this._devtools.send(this._configuration.stateName!, actionName, val);
     }
   }
 
   /**
    * Sets properties of state and propagates the change.
    * @param statusUpdate - Changed properties of state and their new values. It
-   * is given either as an object or as a function returning object.
+   * is given either as an object or as a function with parameter representing
+   * the current state and returning its new value.
    * @param options - Optional state setting options. Default `actionName` is
    * *'set'*.
    */
@@ -170,7 +190,8 @@ export class StateService<T extends Record<string, any>> {
   /**
    * Sets properties of state deeply and propagates the change.
    * @param statusUpdate - Changed properties of state and their new values. It
-   * is given either as an object or as a function returning object.
+   * is given either as an object or as a function with parameter representing
+   * the current state and returning its new value.
    * @param options - Optional state setting options. Default `actionName` is
    * *'set'*.
    */
@@ -229,10 +250,10 @@ export class StateService<T extends Record<string, any>> {
    * taken from configuration `storage` property.
    */
   removeStoredState(storage?: Storage) {
-    const usedStorage = storage ?? this.configuration.storage;
+    const usedStorage = storage ?? this._configuration.storage;
 
-    if (!!usedStorage && !!this.configuration.stateName) {
-      usedStorage.removeItem(this.configuration.stateName);
+    if (!!usedStorage && !!this._configuration.stateName) {
+      usedStorage.removeItem(this._configuration.stateName);
     }
   }
 }
