@@ -4,7 +4,6 @@
   "scripts": {
     "start": "ng serve",
     "build-lib": "ng build ngx-state-service",
-    "watch": "ng build --watch --configuration development",
     "test": "ng test ngx-state-service",
     "test coverage": "ng test --no-watch --code-coverage ngx-state-service"
   },

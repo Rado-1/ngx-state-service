@@ -164,6 +164,16 @@ default.
 this.localState.set((state) => ({ a: state.a + 1 }), { actionName: "increment" });
 ```
 
+If one block of code performs several consequent changes of a state, not all of
+them need to be propagated, just the last one. To suppress propagation of a
+state set the setting option `quiet` to `true`.
+
+```ts
+this.localState.set({ a: 1 }, { quiet: true }); // do not propagate
+this.localState.set({ b: "bbb" }, { quiet: true }); // do not propagate
+this.localState.setDeep({ c: { e: "eee" } }); // propagate
+```
+
 ### Getting the current state
 
 The current state is available in te `value` property of `StateService`.

@@ -55,6 +55,12 @@ export interface StateSettingOptions {
    * Optional name of the action used by console logging or by Redux DevTools.
    */
   actionName?: string;
+
+  /**
+   * If true, notification about changing the state is not sent. Else,
+   * notification is sent.
+   */
+  quiet?: boolean;
 }
 
 let stateId = 0;
@@ -148,11 +154,11 @@ export class StateService<T extends Record<string, any>> {
         : statusUpdate;
     const val = updateFn(this.value, statusUpdateValue);
 
-    if (this._configuration.useObservable) {
+    if (options?.quiet !== true && this._configuration.useObservable) {
       this._stateValueSubject.next(val);
     }
 
-    if (this._configuration.useSignal) {
+    if (options?.quiet !== true && this._configuration.useSignal) {
       this.valueSignal.set(val);
     }
 

@@ -5,13 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 2024-03-??
+## [1.1.0] - 2024-03-21
 
 ### Added
 
-??? REALLY NEEDED? - THINK ABOUT
-
 - New service configuration options `useObservable` and `useSignal`.
+- New `StateSettingOptions.quiet` allowing to suppress propagation of state
+  changes.
 
 ## [1.0.1] - 2024-03-10
 
@@ -42,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Boolean parameter `isDeep` was replaced by object parameter `options` in `set` method.
+- Boolean parameter `isDeep` was replaced by object parameter `options` in `set`
+  method.
 - Object parameter `options` was added to `setDeep` method.
 
 ### Fixed
@@ -75,7 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `setFnc` and `setDeepFnc` methods were removed. Functional parameters are
   supported by `set` and `setDeep` methods now.
-  supported by `set` and `setDeep` functions.
 
 ## [0.1.4] - 2024-01-31
 
