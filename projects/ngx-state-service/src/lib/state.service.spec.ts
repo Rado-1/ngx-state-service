@@ -26,6 +26,9 @@ describe('StateService', () => {
 
     state.set({ b: '1' });
     expect(state.value).toEqual({ a: 1, b: '1' });
+
+    state.set((state) => ({ b: state.b + 'x' }));
+    expect(state.value).toEqual({ a: 1, b: '1x' });
   });
 
   it('sets state and propagates as observable', (done: DoneFn) => {
@@ -54,12 +57,12 @@ describe('StateService', () => {
     });
   });
 
-  it('select propagates sub-state', (done: DoneFn) => {
+  it('select propagates sub-state with own comparator', (done: DoneFn) => {
     state.set({ a: 1, b: '1', c: { d: 1, e: '1' } });
     let res: Pick<LocalState, 'a' | 'b'>[] = [];
 
     state
-      .select(['a', 'b'])
+      .select(['a', 'b'], (v1, v2) => v1.a === v2.a && v1.b === v2.b)
       .pipe(takeWhile((val) => val.a !== 0))
       .subscribe({
         next: (val) => {
@@ -116,6 +119,8 @@ describe('StateService', () => {
 
   it('can use storage', () => {
     state.config({
+      enableConsoleLog: true,
+      enableDevTools: true,
       enableStorage: true,
       storage: sessionStorage,
       stateName: 'Test',
