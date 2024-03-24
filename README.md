@@ -93,8 +93,6 @@ State service can be configured by the following parameters:
 
 | Option             | Description                                                                                                                    | Default        |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------ | -------------- |
-| _useObservable_    | If true, changes of state are propagated by RxJS Observable.                                                                   | `true`         |
-| _useSignal_        | If true, changes of state are propagated by Angular Signal.                                                                    | `false`        |
 | _enableDevTools_   | If true, [Redux DevTools](https://github.com/reduxjs/redux-devtools) browser extension is enabled to inspect changes of state. | `false`        |
 | _enableConsoleLog_ | If true, changes of state are logged to console.                                                                               | `false`        |
 | _enableStorage_    | If true, the latest state is persisted in storage and reloaded if changed to true.                                             | `false`        |
@@ -162,16 +160,6 @@ default.
 
 ```ts
 this.localState.set((state) => ({ a: state.a + 1 }), { actionName: "increment" });
-```
-
-If one block of code performs several consequent changes of a state, not all of
-them need to be propagated, just the last one. To suppress propagation of a
-state set the setting option `quiet` to `true`.
-
-```ts
-this.localState.set({ a: 1 }, { quiet: true }); // do not propagate
-this.localState.set({ b: "bbb" }, { quiet: true }); // do not propagate
-this.localState.setDeep({ c: { e: "eee" } }); // propagate
 ```
 
 ### Getting the current state

@@ -8,9 +8,4 @@ export interface GlobalState {
 @Injectable({
   providedIn: 'root',
 })
-export class GlobalStateService extends StateService<GlobalState> {
-  constructor() {
-    super();
-    this.config({ useSignal: true });
-  }
-}
+export class GlobalStateService extends StateService<GlobalState> {}

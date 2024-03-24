@@ -9,16 +9,6 @@ import { DevtoolsService } from './devtools.service';
  * Configuration of StateService.
  */
 export interface StateServiceConfig {
-  /**
-   * If true, changes of state are propagated by RxJS Observable.
-   */
-  useObservable?: boolean;
-
-  /**
-   * If true, changes of state are propagated by signal.
-   */
-  useSignal?: boolean;
-
   /** If true, Redux DevTools browser extension is enabled to inspect changes of
    * state.
    */
@@ -55,12 +45,6 @@ export interface StateSettingOptions {
    * Optional name of the action used by console logging or by Redux DevTools.
    */
   actionName?: string;
-
-  /**
-   * If true, notification about changing the state is not sent. Else,
-   * notification is sent.
-   */
-  quiet?: boolean;
 }
 
 let stateId = 0;
@@ -74,8 +58,6 @@ let stateId = 0;
 @Injectable()
 export class StateService<T extends Record<string, any>> {
   private _configuration: StateServiceConfig = {
-    useObservable: true,
-    useSignal: false,
     enableDevTools: false,
     enableConsoleLog: false,
     enableStorage: false,
@@ -117,14 +99,8 @@ export class StateService<T extends Record<string, any>> {
 
       if (storedVal) {
         const val = JSON.parse(storedVal) as T;
-
-        if (this._configuration.useObservable) {
-          this._stateValueSubject.next(val);
-        }
-
-        if (this._configuration.useSignal) {
-          setTimeout(() => this.valueSignal.set(val));
-        }
+        this._stateValueSubject.next(val);
+        this.valueSignal.set(val);
       }
     }
 
@@ -154,13 +130,8 @@ export class StateService<T extends Record<string, any>> {
         : statusUpdate;
     const val = updateFn(this.value, statusUpdateValue);
 
-    if (options?.quiet !== true && this._configuration.useObservable) {
-      this._stateValueSubject.next(val);
-    }
-
-    if (options?.quiet !== true && this._configuration.useSignal) {
-      this.valueSignal.set(val);
-    }
+    this._stateValueSubject.next(val);
+    this.valueSignal.set(val);
 
     if (this._useStorage) {
       this._configuration.storage!.setItem(
@@ -212,7 +183,7 @@ export class StateService<T extends Record<string, any>> {
    * Selects a sub-state.
    * @param keys An array of state property keys to select.
    * @param comparator An optional function used to compare the previous and
-   * the current selected tate for equality. Default is Lodash isEqual check.
+   * the current selected state for equality. Default is Lodash `isEqual` check.
    * @returns Observable of the selected sub-state.
    */
   select<K extends keyof T, U extends Pick<T, K>>(
@@ -224,7 +195,7 @@ export class StateService<T extends Record<string, any>> {
    * Selects a sub-state or transforms the state to another type.
    * @param selector A selection/transformation function.
    * @param comparator An optional function used to compare the previous and
-   * the current transformed state for equality. Default is Lodash isEqual
+   * the current transformed state for equality. Default is Lodash `isEqual`
    * check.
    * @returns Observable of the transformed state.
    */
@@ -251,9 +222,9 @@ export class StateService<T extends Record<string, any>> {
   }
 
   /**
-   * Removes state from storage.
-   * @param storage - Optional specification of storage. The default value is
-   * taken from configuration `storage` property.
+   * Removes a state from storage.
+   * @param storage - Optional specification of storage. If not specified, the
+   * value is taken from configuration property `storage`.
    */
   removeStoredState(storage?: Storage) {
     const usedStorage = storage ?? this._configuration.storage;
