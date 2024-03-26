@@ -5,15 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.2] - 2024-03-??
+## [1.0.2] - 2024-03-26
 
 ### Fixed
 
-TODO
-
-- Update to `@angular-devkit/build-angular@???` resolving a security concern
-  identified at
+- Resolving a security concern identified at
   [GHSA-wr3j-pwj9-hqq6](https://github.com/advisories/GHSA-wr3j-pwj9-hqq6).
+- Improved test coverage (100% now).
 
 ## [1.0.1] - 2024-03-10
 
