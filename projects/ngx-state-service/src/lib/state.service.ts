@@ -42,6 +42,12 @@ export interface StateServiceConfig {
  */
 export interface StateSettingOptions {
   /**
+   * If true, the change of the state is propagated as Observable/Signal. If
+   * false, the change is not propagated. Default is true.
+   */
+  propagate?: boolean;
+
+  /**
    * Optional name of the action used by console logging or by Redux DevTools.
    */
   actionName?: string;
@@ -130,8 +136,10 @@ export class StateService<T extends Record<string, any>> {
         : statusUpdate;
     const val = updateFn(this.value, statusUpdateValue);
 
-    this._stateValueSubject.next(val);
-    this.valueSignal.set(val);
+    if (options?.propagate ?? true) {
+      this._stateValueSubject.next(val);
+      this.valueSignal.set(val);
+    }
 
     if (this._useStorage) {
       this._configuration.storage!.setItem(

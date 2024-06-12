@@ -1,6 +1,6 @@
 {
   "name": "ngx-state-service",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lightweight state management library for Angular.",
   "author": {
     "name": "Radovan Cervenka"
@@ -20,8 +20,8 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": ">=14.0.0",
-    "@angular/core": ">=14.0.0"
+    "@angular/common": ">=16.0.0",
+    "@angular/core": ">=16.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0",
