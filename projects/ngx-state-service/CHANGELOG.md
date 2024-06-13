@@ -10,7 +10,7 @@ Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
-- Fixed updating of state value if propagation is disabled by setting.
+- Fixed updating of state value if propagation is disabled in setting.
 
 ## [1.0.3] - 2024-06-12
 
