@@ -1,5 +1,11 @@
 import { Injectable, WritableSignal, inject, signal } from '@angular/core';
-import { BehaviorSubject, Observable, distinctUntilChanged, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  Observable,
+  distinctUntilChanged,
+  filter,
+  map,
+} from 'rxjs';
 import { RecursivePartial, mut, mutDeep } from './utils';
 import isEqual from 'lodash-es/isEqual';
 import pick from 'lodash-es/pick';
@@ -74,12 +80,18 @@ export class StateService<T extends Record<string, any>> {
   private _useDevtools = false;
   private _devtools = inject(DevtoolsService);
 
-  private _stateValueSubject = new BehaviorSubject<T>(undefined as any);
+  private _stateValueSubject = new BehaviorSubject<{
+    value: T;
+    propagate?: boolean;
+  }>(undefined as any);
 
   /**
    * Observable of the current state value.
    */
-  readonly value$ = this._stateValueSubject.asObservable();
+  readonly value$ = this._stateValueSubject.asObservable().pipe(
+    filter((v) => v?.propagate ?? true),
+    map((v) => v?.value)
+  );
 
   /**
    * Signal of the current state value.
@@ -105,7 +117,7 @@ export class StateService<T extends Record<string, any>> {
 
       if (storedVal) {
         const val = JSON.parse(storedVal) as T;
-        this._stateValueSubject.next(val);
+        this._stateValueSubject.next({ value: val });
         this.valueSignal.set(val);
       }
     }
@@ -118,7 +130,7 @@ export class StateService<T extends Record<string, any>> {
    * Returns the current state value.
    */
   get value() {
-    return this._stateValueSubject.value as T;
+    return this._stateValueSubject.value?.value as T;
   }
 
   /** @internal */
@@ -137,8 +149,10 @@ export class StateService<T extends Record<string, any>> {
     const val = updateFn(this.value, statusUpdateValue);
 
     if (options?.propagate ?? true) {
-      this._stateValueSubject.next(val);
+      this._stateValueSubject.next({ value: val });
       this.valueSignal.set(val);
+    } else {
+      this._stateValueSubject.next({ value: val, propagate: false });
     }
 
     if (this._useStorage) {

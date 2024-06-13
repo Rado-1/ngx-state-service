@@ -31,6 +31,17 @@ describe('StateService', () => {
     expect(state.value).toEqual({ a: 1, b: '1x' });
   });
 
+  it('sets state but do not propagate', () => {
+    state.set({ a: 1 }, { propagate: false });
+    expect(state.value).toEqual({ a: 1 });
+
+    state.set({ b: '1' }, { propagate: false });
+    expect(state.value).toEqual({ a: 1, b: '1' });
+
+    state.set((state) => ({ b: state.b + 'x' }), { propagate: false });
+    expect(state.value).toEqual({ a: 1, b: '1x' });
+  });
+
   it('sets state and propagates as observable', (done: DoneFn) => {
     state.set({ a: 1, b: '1' });
     state.value$.subscribe((value) => {
