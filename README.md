@@ -1,7 +1,7 @@
 # ngx-state-service
 
-![NPM Version](https://img.shields.io/npm/v/ngx-state-service)
-![NPM License](https://img.shields.io/npm/l/ngx-state-service)
+[![NPM Version](https://img.shields.io/npm/v/ngx-state-service)](https://www.npmjs.com/package/ngx-state-service)
+[![NPM License](https://img.shields.io/npm/l/ngx-state-service)](LICENSE)
 
 Lightweight state management library for Angular.
 
